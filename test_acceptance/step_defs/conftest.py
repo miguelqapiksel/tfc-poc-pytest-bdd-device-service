@@ -102,14 +102,10 @@ def verify_response_attribute_values_one_column(datatable, one_col_table_w_heade
     expected_table = parse_str_table(one_col_table_w_header)
     jsonResponse=json.loads(response_texts['GET'])
     print(jsonResponse['results'][0])
-  #  bodyFlag = True if "body" in jsonContents["objects"][0]["data"] and jsonContents["objects"][0]["data"][
-  #      "body"] == "Present" else False
-   # assert_that(theBiscuit, equal_to(myBiscuit))
     for x in expected_table.get_column(0):
-        #if x in jsonResponse['results'][0]:
-        #    else
-        #    raise Exception('error')
         print(x)
+        if not x in jsonResponse['results'][0]: raise Exception('the field:'+ x + ' is not in the response')
+
 
 
 
