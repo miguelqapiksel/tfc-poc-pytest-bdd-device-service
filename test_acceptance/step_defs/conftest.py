@@ -3,6 +3,7 @@ import json
 from pytest_bdd import scenario, given, when, then, parsers
 from step_defs.env import Inizialization
 from step_defs.datatable import datatable
+from test_acceptance.utils.datautils import DataUtils
 import ssl
 from sttable import parse_str_table
 import requests
@@ -75,8 +76,8 @@ def set_get_api_endpoint():
 
 
 #You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
-@when('Send GET HTTP request')
-def send_get_http_request():
+@when(parsers.cfparse('Send GET HTTP request to {request_name:Char} service',extra_types=dict(Char=str)))
+def send_get_http_request(service):
     # sending get request and saving response as response object
     print("--------------------------")
     print(api_endpoints['GET_URL'])
@@ -84,7 +85,7 @@ def send_get_http_request():
     print("-------------------------------")
 
     response = requests.get(url=api_endpoints['GET_URL'], headers=headers, verify=False) #https://jsonplaceholder.typicode.com/posts
-
+    DataUtils.last_response = json.loads(response.text)['results']
     # extracting response text
     response_texts['GET']=response.text
     # extracting response status_code
@@ -103,16 +104,19 @@ def verify_response_attribute_values_one_column(datatable, one_col_table_w_heade
     jsonResponse=json.loads(response_texts['GET'])
     print(jsonResponse['results'][0])
     for x in expected_table.get_column(0):
+        # for y in expected_table.get_column(1):
         print(x)
-        if not x in jsonResponse['results'][0]: raise Exception('the field:'+ x + ' is not in the response')
+    #     if not x in jsonResponse['results'][0]: raise Exception('the field:'+ x + ' is not in the response')
+    #     exec(y)
 
 
-
-
-@then(parsers.parse('verify response attribute values:\n{table_with_header}'))
-def verify_response_attribute_values_several_columns(datatable,table_with_header):
-    datatable.table = parse_str_table(table_with_header)
-
-
-
-
+@then(parsers.parse('last response should contain:\n{table_with_header}'))
+def verify_response_attribute_values_several_columns(datatable, table_with_header):
+    expected_table = parse_str_table(table_with_header)
+    jsonResponse = json.loads(response_texts['GET'])
+    print(jsonResponse['results'][0])
+    for x in expected_table.get_column(0):
+        for y in expected_table.get_column(1):
+            print(x)
+            if not x in jsonResponse['results'][0]: raise Exception('the field:' + x + ' is not in the response')
+            exec(y)

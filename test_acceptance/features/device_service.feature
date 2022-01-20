@@ -6,23 +6,8 @@ Background:
 
 Scenario: get all devices
   Given I Set GET devices api endpoint
-  When Send GET HTTP request
+  When Send GET HTTP request to device service
   Then I receive valid HTTP response code 200 for GET
-  Then verify response attributes:
-      |Attributes             |
-      |id                     |
-      |name                   |
-      |management_ip          |
-      |tier_number            |
-      |configuration_values   |
-      |custom_metadata        |
-      |device_monitoring      |
-      |delete_origin          |
-      |production_id          |
-      |created_at             |
-      |updated_at             |
-      |deleted_at             |
-      |_links                 |
-      |_embedded              |
-
-
+  Then last response should contain:
+    | value | expect                                                                             |
+    | id    | assert(DataUtils.last_response[0]['id'] == 'ec7911c1-b0f5-4c43-a7bd-95fe17b80ca6') |
