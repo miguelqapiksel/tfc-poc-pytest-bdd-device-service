@@ -1,6 +1,10 @@
+import pytest
+import json
 from pytest_bdd import scenario, given, when, then, parsers
 from step_defs.env import Inizialization
+from step_defs.datatable import datatable
 import ssl
+from sttable import parse_str_table
 import requests
 
 
@@ -23,13 +27,6 @@ def api_initialization():
     request_headers['X-Context'] = Inizialization.data[':header_x_context']
     request_headers['X-Production_Id'] = Inizialization.data[':header_x_production_id_default']
     headers=request_headers
-  #  try:
-  #      _create_unverified_https_context = ssl._create_unverified_context
-  #  except AttributeError:
-#        pass
-#    else:
-#        ssl._create_default_https_context = _create_unverified_https_context
-
 
 # START POST Scenario
 @given('I Set POST posts api endpoint')
@@ -100,10 +97,26 @@ def receive_valid_http_response_code_200(request_name):
     print('Get rep code for '+request_name+':'+ str(response_codes[request_name]))
     assert response_codes[request_name] is 200
 
+@then(parsers.parse('verify response attributes:\n{one_col_table_w_header}'))
+def verify_response_attribute_values_one_column(datatable, one_col_table_w_header):
+    expected_table = parse_str_table(one_col_table_w_header)
+    jsonResponse=json.loads(response_texts['GET'])
+    print(jsonResponse['results'][0])
+  #  bodyFlag = True if "body" in jsonContents["objects"][0]["data"] and jsonContents["objects"][0]["data"][
+  #      "body"] == "Present" else False
+   # assert_that(theBiscuit, equal_to(myBiscuit))
+    for x in expected_table.get_column(0):
+        #if x in jsonResponse['results'][0]:
+        #    else
+        #    raise Exception('error')
+        print(x)
 
 
-@then(parsers.parse('verify response attribute values:'))
-def verify_response_attribute_values(datatable):
-    print(datatable[1])
-    return datatable[1]
+
+@then(parsers.parse('verify response attribute values:\n{table_with_header}'))
+def verify_response_attribute_values_several_columns(datatable,table_with_header):
+    datatable.table = parse_str_table(table_with_header)
+
+
+
 
