@@ -76,8 +76,8 @@ def set_get_api_endpoint():
 
 
 #You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
-@when(parsers.cfparse('Send GET HTTP request to {request_name:Char} service',extra_types=dict(Char=str)))
-def send_get_http_request(service):
+@when(parsers.cfparse('Send GET HTTP request to {service_name:Char} service',extra_types=dict(Char=str)))
+def send_get_http_request(service_name):
     # sending get request and saving response as response object
     print("--------------------------")
     print(api_endpoints['GET_URL'])
