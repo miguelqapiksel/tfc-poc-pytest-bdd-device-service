@@ -28,6 +28,8 @@ urllib3==1.25.8
 wcwidth==0.1.8
 wrapt==1.11.2
 zipp==2.1.0
-pytest-bdd
-pyyaml
-sttable
+pytest-bdd~=5.0.0
+pyyaml~=6.0
+sttable~=0.0.1
+
+pika~=1.2.0
