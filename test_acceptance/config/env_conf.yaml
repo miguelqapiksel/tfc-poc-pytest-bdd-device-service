@@ -3,5 +3,6 @@
 :header_x_context: client
 :header_x_production_id_default: 4675d8e0-c0a8-11ea-956b-cfe50a02a49e
 :header_content_type: application/json
-:rabbit_mq_adress: localhost
-:rabbit_mq_queue: hello
+:mq_adress: localhost
+:mq_queues: hello,device.create,device.delete,device.update,custom.test
+:pool_messages_minutes_timeout: 1

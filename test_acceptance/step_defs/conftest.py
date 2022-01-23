@@ -1,9 +1,14 @@
+import os
+from pathlib import Path
+import time
+
 import pytest
 import json
 from pytest_bdd import scenario, given, when, then, parsers
 from step_defs.env import Inizialization
 from step_defs.datatable import datatable
 from test_acceptance.utils.datautils import DataUtils
+from test_acceptance.utils.rabbitmocksender import RabbitMockSender
 import ssl
 from sttable import parse_str_table
 import requests
@@ -120,3 +125,77 @@ def verify_response_attribute_values_several_columns(datatable, table_with_heade
             print(x)
             if not x in jsonResponse['results'][0]: raise Exception('the field:' + x + ' is not in the response')
             exec(y)
+
+@given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}', extra_types=dict(Char=str)))
+def send_message_to_rabbitmq(mock_message, routing_key):
+    rabbit_mq_handler = RabbitMockSender(Inizialization.data[':mq_adress'], routing_key,
+                                         mock_message)
+    time.sleep(20) #This is just for mocking, since rabbitmq messages is not a thing that happens in ms
+    rabbit_mq_handler.send_message()
+
+@given(parsers.cfparse('I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}', extra_types=dict(Char=str)))
+def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
+    with open(json_file_path, 'r') as j:
+        json_file_content = j.read()
+
+    rabbit_mq_handler = RabbitMockSender(Inizialization.data[':mq_adress'], routing_key,
+                                         json_file_content)
+    time.sleep(10) #This is just for mocking, since rabbitmq messages is not a thing that happens in ms
+    rabbit_mq_handler.send_message()
+
+@then(parsers.cfparse('I check message {message:Char} exists in RabbitMQ for routing key {routing_key:Char}', extra_types=dict(Char=str)))
+def send_message_to_rabbitmq(message,routing_key):
+    start_time = time.time()
+    seconds = int(Inizialization.data[':pool_messages_minutes_timeout']) * 60
+    timeout_reached = False
+    message_found = False
+
+    while not timeout_reached and not message_found:
+        if len(Inizialization.rabbit_consumer.rabbit_data) > 0:
+            for rabbit_message in Inizialization.rabbit_consumer.rabbit_data:
+                if rabbit_message['queue'] in routing_key:
+                    if rabbit_message['message'] in message:
+                        message_found = True
+
+
+
+        #print ("keep pooling, there are no messages in the queue")
+        current_time = time.time()
+        elapsed_time = current_time - start_time
+        if elapsed_time > seconds:
+            timeout_reached = True
+            time.sleep(3)
+
+    assert timeout_reached == False,'Timeout reached message %s was not found in %s routing key' % (message, routing_key)
+
+
+@then(parsers.parse('I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}'))
+def verify_message_rabbit_mq_values_several_columns(routing_key,datatable, table_with_header):
+    expected_table = parse_str_table(table_with_header)
+    start_time = time.time()
+    seconds = int(Inizialization.data[':pool_messages_minutes_timeout']) * 60
+    timeout_reached = False
+    message_found = False
+
+    while not timeout_reached and not message_found:
+        if len(Inizialization.rabbit_consumer.rabbit_data) > 0:
+            for rabbit_message in Inizialization.rabbit_consumer.rabbit_data:
+                if rabbit_message['queue'] in routing_key:
+                    #let's start finding what we want from rabbitMq
+                    for field_expected in expected_table.get_column(0):
+                        for expectated_data in expected_table.get_column(1):
+                            if not field_expected in rabbit_message['message']: raise Exception(
+                                'the field:' + field_expected + ' is not in rabbit message')
+                            if not expectated_data in rabbit_message['message'][field_expected]: raise Exception(
+                                'the field:' + field_expected + ' does not have the value ' + expectated_data + 'required')
+                            else:
+                                message_found = True
+
+
+
+        #print ("keep pooling, there are no messages in the queue")
+        current_time = time.time()
+        elapsed_time = current_time - start_time
+        if elapsed_time > seconds:
+            timeout_reached = True
+            time.sleep(3)

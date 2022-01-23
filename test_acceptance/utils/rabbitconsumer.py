@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import pika, sys, os
+import json
 
 class RabbitMqConsumer():
 
@@ -13,16 +14,19 @@ class RabbitMqConsumer():
         channel = connection.channel()
         channel.queue_declare(queue=self.queue)
 
-        def on_message(rabbit_data,message):
-            rabbit_data.append(str(message))
+        def on_message(rabbit_data, queue, message):
+            rabbit_data.append(json.loads('{"queue":"%s" ,"message":"%s"}' % (queue, json.loads(message))))
 
         def callback(ch, method, properties, body):
             print("message is----> %s" % body)
-            ch.parent.rabbit_data.append(str(body))
 
         channel.basic_consume(queue=self.queue, on_message_callback=lambda ch, method, properties,
-                                                                           body: on_message(self.rabbit_data, body), auto_ack=True)
-        channel.start_consuming()
+
+                                                                           body: on_message(self.rabbit_data,self.queue, body), auto_ack=True)
+        try:
+            channel.start_consuming()
+        except:
+            print ("entro qui")
 
 
 
