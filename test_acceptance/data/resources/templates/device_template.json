@@ -1,0 +1,19 @@
+{
+  "name": "${name}",
+  "management_ip": "${management}",
+  "tier_number": 1,
+  "device_type": "${devicetype}",
+  "configuration_values": {
+    "config-option-mandatory": "${confoptionmandatory}",
+    "config-option-not-mandatory": "${confoptionnotmandatory}",
+    "config-option-secret": "${confoptionsecret}",
+    "config-option-integer": 42,
+    "config-option-boolean": false,
+    "config-option-no-regex": "${confoptionnoreguex}"
+  },
+  "custom_metadata": {
+    "name_of_custom_metadata": "${nameofcustommetadata}",
+    "old_id": "${oldid}",
+    "location": "${location}"
+  }
+}

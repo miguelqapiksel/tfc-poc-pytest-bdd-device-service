@@ -3,12 +3,15 @@ from pathlib import Path
 import time
 
 import pytest
+from string import Template
 import json
 from pytest_bdd import scenario, given, when, then, parsers
 from step_defs.env import Inizialization
 from step_defs.datatable import datatable
+
 from test_acceptance.utils.datautils import DataUtils
 from test_acceptance.utils.rabbitmocksender import RabbitMockSender
+from utils.datautils import DataUtils
 import ssl
 from sttable import parse_str_table
 from dotmap import DotMap
@@ -36,14 +39,13 @@ def api_initialization():
 
 
 # START POST Scenario
-@given('I Set POST posts api endpoint')
+@given('I Set POST api endpoint')
 def endpoint_to_post():
-    api_endpoints['POST_URL'] = api_url + '/posts'
-    print('url :' + api_endpoints['POST_URL'])
+    api_endpoints['POST_URL'] = api_url + service
+    print('url :'+api_endpoints['POST_URL'])
 
 
-@when(
-    parsers.cfparse('I Set HEADER param request content type as {header_conent_type:Char}', extra_types=dict(Char=str)))
+@when(parsers.cfparse('I Set HEADER param request content type as {header_conent_type:Char}', extra_types=dict(Char=str)))
 def header(header_conent_type):
     request_headers['Content-Type'] = header_conent_type
 
@@ -52,6 +54,21 @@ def header(header_conent_type):
 @when('Set request Body')
 def set_request_body():
     request_bodies['POST'] = {"title": "foo", "body": "bar", "userId": "1"}
+
+
+#You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
+@when(parsers.parse('Set request Body using the data:\n{table_with_header}'))
+def set_request_body(datatable,table_with_header):
+    expected_table = parse_str_table(table_with_header)
+    keys=expected_table.get_column(0)
+    values=expected_table.get_column(1)
+    dict_param_value=dict(zip(keys,values))
+    with open('../data/resources/templates/device_template.json', 'r') as json_file:
+        content = ''.join(json_file.readlines())
+        template = Template(content)
+        configuration = json.loads(template.substitute(dict_param_value))
+        print(configuration)
+    request_bodies['POST']=configuration
 
 
 # You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
@@ -63,6 +80,9 @@ def send_post():
     # extracting response text
     response_texts['POST'] = response.text
     print("post response :" + response.text)
+    response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=headers, verify=False)
+    response_texts['POST']=response.text
+    print("post response :"+response.text)
     # extracting response status_code
     statuscode = response.status_code
     response_codes['POST'] = statuscode

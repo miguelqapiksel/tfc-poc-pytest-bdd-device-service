@@ -21,3 +21,4 @@ Scenario: Test rabbit MQ messages
     | message.id   | 518486ac-df5a-4e16-bfb9-238cbf2a9038 |
     | message.test | gramola                              |
     | state        | SUCCESS                              |
+
