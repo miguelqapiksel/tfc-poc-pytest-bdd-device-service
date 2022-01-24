@@ -9,8 +9,8 @@ from pytest_bdd import scenario, given, when, then, parsers
 from step_defs.env import Inizialization
 from step_defs.datatable import datatable
 
-from test_acceptance.utils.datautils import DataUtils
-from test_acceptance.utils.rabbitmocksender import RabbitMockSender
+from utils.datautils import DataUtils
+from utils.rabbitmocksender import RabbitMockSender
 from utils.datautils import DataUtils
 import ssl
 from sttable import parse_str_table
@@ -74,12 +74,6 @@ def set_request_body(datatable,table_with_header):
 # You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when('Send POST HTTP request')
 def send_post():
-    # sending get request and saving response as response object
-    response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=request_headers)
-    # response = requests.post(url=api_endpoints['POST_URL'], headers=request_headers) #https://jsonplaceholder.typicode.com/posts
-    # extracting response text
-    response_texts['POST'] = response.text
-    print("post response :" + response.text)
     response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=headers, verify=False)
     response_texts['POST']=response.text
     print("post response :"+response.text)
@@ -118,8 +112,7 @@ def send_get_http_request(service_name):
     print(headers)
     print("-------------------------------")
 
-    response = requests.get(url=api_endpoints['GET_URL'], headers=headers,
-                            verify=False)  # https://jsonplaceholder.typicode.com/posts
+    response = requests.get(url=api_endpoints['GET_URL'], headers=headers, verify=False)  # https://jsonplaceholder.typicode.com/posts
     DataUtils.last_response = json.loads(response.text)['results']
     # extracting response text
     response_texts['GET'] = response.text

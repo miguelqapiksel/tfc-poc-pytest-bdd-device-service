@@ -2,7 +2,7 @@ import threading
 
 import yaml
 import logging
-from test_acceptance.utils.rabbitconsumer import RabbitMqConsumer
+from utils.rabbitconsumer import RabbitMqConsumer
 
 
 class Inizialization():
