@@ -11,15 +11,15 @@ from test_acceptance.utils.datautils import DataUtils
 from test_acceptance.utils.rabbitmocksender import RabbitMockSender
 import ssl
 from sttable import parse_str_table
+from dotmap import DotMap
 import requests
-
 
 api_endpoints = {}
 request_headers = {}
-response_codes ={}
-response_texts={}
+response_codes = {}
+response_texts = {}
 request_bodies = {}
-api_url=None
+api_url = None
 
 
 @given('I set sample REST API url')
@@ -29,59 +29,68 @@ def api_initialization():
     global headers
     api_url = Inizialization.data[':basic_url']
     service = Inizialization.data[':service']
-#    request_headers['Content-Type'] = Inizialization.data[':header_content_type']
+    #    request_headers['Content-Type'] = Inizialization.data[':header_content_type']
     request_headers['X-Context'] = Inizialization.data[':header_x_context']
     request_headers['X-Production_Id'] = Inizialization.data[':header_x_production_id_default']
-    headers=request_headers
+    headers = request_headers
+
 
 # START POST Scenario
 @given('I Set POST posts api endpoint')
 def endpoint_to_post():
-    api_endpoints['POST_URL'] = api_url+'/posts'
-    print('url :'+api_endpoints['POST_URL'])
+    api_endpoints['POST_URL'] = api_url + '/posts'
+    print('url :' + api_endpoints['POST_URL'])
 
-@when(parsers.cfparse('I Set HEADER param request content type as {header_conent_type:Char}', extra_types=dict(Char=str)))
+
+@when(
+    parsers.cfparse('I Set HEADER param request content type as {header_conent_type:Char}', extra_types=dict(Char=str)))
 def header(header_conent_type):
     request_headers['Content-Type'] = header_conent_type
 
-#You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
+
+# You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when('Set request Body')
 def set_request_body():
-    request_bodies['POST']={"title": "foo","body": "bar","userId": "1"}
+    request_bodies['POST'] = {"title": "foo", "body": "bar", "userId": "1"}
 
-#You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
+
+# You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when('Send POST HTTP request')
 def send_post():
     # sending get request and saving response as response object
     response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=request_headers)
-    #response = requests.post(url=api_endpoints['POST_URL'], headers=request_headers) #https://jsonplaceholder.typicode.com/posts
+    # response = requests.post(url=api_endpoints['POST_URL'], headers=request_headers) #https://jsonplaceholder.typicode.com/posts
     # extracting response text
-    response_texts['POST']=response.text
-    print("post response :"+response.text)
+    response_texts['POST'] = response.text
+    print("post response :" + response.text)
     # extracting response status_code
     statuscode = response.status_code
     response_codes['POST'] = statuscode
 
+
 @then('I receive valid HTTP response code 201')
 def receive_valid_http_response():
-    print('Post rep code ;'+str(response_codes['POST']))
+    print('Post rep code ;' + str(response_codes['POST']))
     assert response_codes['POST'] is 201
+
+
 # END POST Scenario
 
 # START GET Scenario
 @given(parsers.cfparse('I Set GET posts api endpoint {id:Char}', extra_types=dict(Char=str)))
 def set_get_api_endpoint(id):
-    api_endpoints['GET_URL'] = api_url+'/posts/'+id
-    print('url :'+api_endpoints['GET_URL'])
+    api_endpoints['GET_URL'] = api_url + '/posts/' + id
+    print('url :' + api_endpoints['GET_URL'])
+
 
 @given('I Set GET devices api endpoint')
 def set_get_api_endpoint():
-    api_endpoints['GET_URL'] = api_url+service
-    print('url :'+api_endpoints['GET_URL'])
+    api_endpoints['GET_URL'] = api_url + service
+    print('url :' + api_endpoints['GET_URL'])
 
 
-#You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
-@when(parsers.cfparse('Send GET HTTP request to {service_name:Char} service',extra_types=dict(Char=str)))
+# You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
+@when(parsers.cfparse('Send GET HTTP request to {service_name:Char} service', extra_types=dict(Char=str)))
 def send_get_http_request(service_name):
     # sending get request and saving response as response object
     print("--------------------------")
@@ -89,24 +98,26 @@ def send_get_http_request(service_name):
     print(headers)
     print("-------------------------------")
 
-    response = requests.get(url=api_endpoints['GET_URL'], headers=headers, verify=False) #https://jsonplaceholder.typicode.com/posts
+    response = requests.get(url=api_endpoints['GET_URL'], headers=headers,
+                            verify=False)  # https://jsonplaceholder.typicode.com/posts
     DataUtils.last_response = json.loads(response.text)['results']
     # extracting response text
-    response_texts['GET']=response.text
+    response_texts['GET'] = response.text
     # extracting response status_code
     statuscode = response.status_code
     response_codes['GET'] = statuscode
 
+
 @then(parsers.cfparse('I receive valid HTTP response code 200 for {request_name:Char}', extra_types=dict(Char=str)))
 def receive_valid_http_response_code_200(request_name):
-
-    print('Get rep code for '+request_name+':'+ str(response_codes[request_name]))
+    print('Get rep code for ' + request_name + ':' + str(response_codes[request_name]))
     assert response_codes[request_name] is 200
+
 
 @then(parsers.parse('verify response attributes:\n{one_col_table_w_header}'))
 def verify_response_attribute_values_one_column(datatable, one_col_table_w_header):
     expected_table = parse_str_table(one_col_table_w_header)
-    jsonResponse=json.loads(response_texts['GET'])
+    jsonResponse = json.loads(response_texts['GET'])
     print(jsonResponse['results'][0])
     for x in expected_table.get_column(0):
         # for y in expected_table.get_column(1):
@@ -126,25 +137,34 @@ def verify_response_attribute_values_several_columns(datatable, table_with_heade
             if not x in jsonResponse['results'][0]: raise Exception('the field:' + x + ' is not in the response')
             exec(y)
 
-@given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}', extra_types=dict(Char=str)))
+
+@given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}',
+                       extra_types=dict(Char=str)))
 def send_message_to_rabbitmq(mock_message, routing_key):
     rabbit_mq_handler = RabbitMockSender(Inizialization.data[':mq_adress'], routing_key,
                                          mock_message)
-    time.sleep(20) #This is just for mocking, since rabbitmq messages is not a thing that happens in ms
-    rabbit_mq_handler.send_message()
 
-@given(parsers.cfparse('I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}', extra_types=dict(Char=str)))
+    rabbit_mq_handler.send_message()
+    time.sleep(10)  # This is just for mocking, since rabbitmq messages is not a thing that happens in ms
+
+
+@given(parsers.cfparse(
+    'I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}',
+    extra_types=dict(Char=str)))
 def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
     with open(json_file_path, 'r') as j:
         json_file_content = j.read()
 
     rabbit_mq_handler = RabbitMockSender(Inizialization.data[':mq_adress'], routing_key,
                                          json_file_content)
-    time.sleep(10) #This is just for mocking, since rabbitmq messages is not a thing that happens in ms
-    rabbit_mq_handler.send_message()
 
-@then(parsers.cfparse('I check message {message:Char} exists in RabbitMQ for routing key {routing_key:Char}', extra_types=dict(Char=str)))
-def send_message_to_rabbitmq(message,routing_key):
+    rabbit_mq_handler.send_message()
+    time.sleep(10)  # This is just for mocking, since rabbitmq messages is not a thing that happens in ms
+
+
+@then(parsers.cfparse('I check message {message:Char} exists in RabbitMQ for routing key {routing_key:Char}',
+                      extra_types=dict(Char=str)))
+def send_message_to_rabbitmq(message, routing_key):
     start_time = time.time()
     seconds = int(Inizialization.data[':pool_messages_minutes_timeout']) * 60
     timeout_reached = False
@@ -154,23 +174,22 @@ def send_message_to_rabbitmq(message,routing_key):
         if len(Inizialization.rabbit_consumer.rabbit_data) > 0:
             for rabbit_message in Inizialization.rabbit_consumer.rabbit_data:
                 if rabbit_message['queue'] in routing_key:
-                    if rabbit_message['message'] in message:
+                    if rabbit_message['body'] == json.loads(message):
                         message_found = True
 
-
-
-        #print ("keep pooling, there are no messages in the queue")
+        # print ("keep pooling, there are no messages in the queue")
         current_time = time.time()
         elapsed_time = current_time - start_time
         if elapsed_time > seconds:
             timeout_reached = True
             time.sleep(3)
 
-    assert timeout_reached == False,'Timeout reached message %s was not found in %s routing key' % (message, routing_key)
+    assert message_found == True, 'message %s was not found in %s routing key' % (message, routing_key)
 
 
-@then(parsers.parse('I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}'))
-def verify_message_rabbit_mq_values_several_columns(routing_key,datatable, table_with_header):
+@then(parsers.parse(
+    'I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}'))
+def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     start_time = time.time()
     seconds = int(Inizialization.data[':pool_messages_minutes_timeout']) * 60
@@ -181,21 +200,22 @@ def verify_message_rabbit_mq_values_several_columns(routing_key,datatable, table
         if len(Inizialization.rabbit_consumer.rabbit_data) > 0:
             for rabbit_message in Inizialization.rabbit_consumer.rabbit_data:
                 if rabbit_message['queue'] in routing_key:
-                    #let's start finding what we want from rabbitMq
+                    # let's start finding what we want from rabbitMq
                     for field_expected in expected_table.get_column(0):
-                        for expectated_data in expected_table.get_column(1):
-                            if not field_expected in rabbit_message['message']: raise Exception(
-                                'the field:' + field_expected + ' is not in rabbit message')
-                            if not expectated_data in rabbit_message['message'][field_expected]: raise Exception(
-                                'the field:' + field_expected + ' does not have the value ' + expectated_data + 'required')
-                            else:
-                                message_found = True
+                        for expected_data in expected_table.get_column(1):
+                            field_value_to_dict = DataUtils.convert_field_expected_to_dict(field_expected, rabbit_message['body'])
+                            if not field_value_to_dict is None:
+                                if expected_data in field_value_to_dict:
+                                    message_found = True
 
-
-
-        #print ("keep pooling, there are no messages in the queue")
+        # print ("keep pooling, there are no messages in the queue")
         current_time = time.time()
         elapsed_time = current_time - start_time
         if elapsed_time > seconds:
             timeout_reached = True
             time.sleep(3)
+
+    if not message_found:
+        raise Exception(
+            'Field expected was not found in %s routing key' % routing_key)
+
