@@ -1,9 +1,10 @@
 import pytest
+from string import Template
 import json
 from pytest_bdd import scenario, given, when, then, parsers
 from step_defs.env import Inizialization
 from step_defs.datatable import datatable
-from test_acceptance.utils.datautils import DataUtils
+from utils.datautils import DataUtils
 import ssl
 from sttable import parse_str_table
 import requests
@@ -30,27 +31,29 @@ def api_initialization():
     headers=request_headers
 
 # START POST Scenario
-@given('I Set POST posts api endpoint')
+@given('I Set POST api endpoint')
 def endpoint_to_post():
-    api_endpoints['POST_URL'] = api_url+'/posts'
+    api_endpoints['POST_URL'] = api_url + service
     print('url :'+api_endpoints['POST_URL'])
 
-@when(parsers.cfparse('I Set HEADER param request content type as {header_conent_type:Char}', extra_types=dict(Char=str)))
-def header(header_conent_type):
-    request_headers['Content-Type'] = header_conent_type
-
 #You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
-@when('Set request Body')
-def set_request_body():
-    request_bodies['POST']={"title": "foo","body": "bar","userId": "1"}
+@when(parsers.parse('Set request Body using the data:\n{table_with_header}'))
+def set_request_body(datatable,table_with_header):
+    expected_table = parse_str_table(table_with_header)
+    keys=expected_table.get_column(0)
+    values=expected_table.get_column(1)
+    dict_param_value=dict(zip(keys,values))
+    with open('../data/resources/templates/device_template.json', 'r') as json_file:
+        content = ''.join(json_file.readlines())
+        template = Template(content)
+        configuration = json.loads(template.substitute(dict_param_value))
+        print(configuration)
+    request_bodies['POST']=configuration
 
 #You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when('Send POST HTTP request')
 def send_post():
-    # sending get request and saving response as response object
-    response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=request_headers)
-    #response = requests.post(url=api_endpoints['POST_URL'], headers=request_headers) #https://jsonplaceholder.typicode.com/posts
-    # extracting response text
+    response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=headers, verify=False)
     response_texts['POST']=response.text
     print("post response :"+response.text)
     # extracting response status_code
@@ -63,11 +66,6 @@ def receive_valid_http_response():
     assert response_codes['POST'] is 201
 # END POST Scenario
 
-# START GET Scenario
-@given(parsers.cfparse('I Set GET posts api endpoint {id:Char}', extra_types=dict(Char=str)))
-def set_get_api_endpoint(id):
-    api_endpoints['GET_URL'] = api_url+'/posts/'+id
-    print('url :'+api_endpoints['GET_URL'])
 
 @given('I Set GET devices api endpoint')
 def set_get_api_endpoint():
@@ -76,8 +74,8 @@ def set_get_api_endpoint():
 
 
 #You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
-@when(parsers.cfparse('Send GET HTTP request to {request_name:Char} service',extra_types=dict(Char=str)))
-def send_get_http_request(service):
+@when(parsers.cfparse('Send GET HTTP request to {service_name:Char} service',extra_types=dict(Char=str)))
+def send_get_http_request(service_name):
     # sending get request and saving response as response object
     print("--------------------------")
     print(api_endpoints['GET_URL'])
