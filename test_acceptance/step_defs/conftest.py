@@ -131,11 +131,14 @@ def verify_response_attribute_values_several_columns(datatable, table_with_heade
     expected_table = parse_str_table(table_with_header)
     jsonResponse = json.loads(response_texts['GET'])
     print(jsonResponse['results'][0])
-    for x in expected_table.get_column(0):
-        for y in expected_table.get_column(1):
-            print(x)
-            if not x in jsonResponse['results'][0]: raise Exception('the field:' + x + ' is not in the response')
-            exec(y)
+    iterator = 0
+    while iterator < len(expected_table.rows):
+        field_expected = expected_table.get_column(0)[iterator]
+        expected_data = expected_table.get_column(1)[iterator]
+
+        if not field_expected in jsonResponse['results'][0]: raise Exception('the field:' + field_expected + ' is not in the response')
+        exec(expected_data)
+        iterator += 1
 
 
 @given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}',
@@ -200,13 +203,16 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
         if len(Inizialization.rabbit_consumer.rabbit_data) > 0:
             for rabbit_message in Inizialization.rabbit_consumer.rabbit_data:
                 if rabbit_message['queue'] in routing_key:
-                    # let's start finding what we want from rabbitMq
-                    for field_expected in expected_table.get_column(0):
-                        for expected_data in expected_table.get_column(1):
-                            field_value_to_dict = DataUtils.convert_field_expected_to_dict(field_expected, rabbit_message['body'])
-                            if not field_value_to_dict is None:
-                                if expected_data in field_value_to_dict:
-                                    message_found = True
+                    iterator = 0
+                    while iterator < len(expected_table.rows):
+                        field_expected = expected_table.get_column(0)[iterator]
+                        expected_data = expected_table.get_column(1)[iterator]
+                        field_value_to_dict = DataUtils.convert_field_expected_to_dict(
+                            field_expected, rabbit_message['body'])
+                        if field_value_to_dict is not None:
+                            if expected_data in field_value_to_dict:
+                                message_found = True
+                        iterator+=1
 
         # print ("keep pooling, there are no messages in the queue")
         current_time = time.time()
