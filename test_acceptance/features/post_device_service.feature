@@ -8,8 +8,8 @@ Scenario: post one device in device service
   Given I Set POST api endpoint
   When Set request Body using the data:
        |param                    |value                                 |
-       | name                    | test-device-1234567                  |
-       | management              | 10.10.10.221                         |
+       | name                    | test-device-1234568                  |
+       | management              | 10.10.10.225                         |
        | devicetype              | 6b6d1986-aa6e-4697-8083-189d01d4133f |
        | confoptionmandatory     | test 1                               |
        | confoptionnotmandatory  | test 1                               |
