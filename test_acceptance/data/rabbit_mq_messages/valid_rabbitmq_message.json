@@ -1,0 +1,30 @@
+{
+   "message":{
+      "id":"518486ac-df5a-4e16-bfb9-238cbf2a9038",
+      "listenSettings":{
+         "controlDataAddress":{
+            "address":"127.0.0.1",
+            "port":5002
+         },
+         "monitoringDataAddress":{
+            "address":"127.0.0.1",
+            "port":6001
+         }
+      },
+      "localControllers":{
+
+      },
+      "heartbeatAddress":{
+         "address":"225.4.5.6",
+         "port":10001
+      },
+      "hostname":"mafalda",
+      "summaryInformation":{
+
+      },
+      "virtualMachines":[
+
+      ]
+   },
+   "eventType":"GL_JOIN"
+}
