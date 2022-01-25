@@ -9,7 +9,8 @@ import json
 from pytest_bdd import scenario, given, when, then, parsers
 from step_defs.env import Inizialization
 from step_defs.datatable import datatable
-
+from step_defs.delete_methods import deleteMethods
+from step_defs.get_methods import getMethods
 from utils.datautils import DataUtils
 from utils.rabbitmocksender import RabbitMockSender
 from utils.datautils import DataUtils
@@ -47,26 +48,14 @@ def endpoint_to_post():
     api_endpoints['POST_URL'] = api_url + service
     print('url :'+api_endpoints['POST_URL'])
 
-
-@when(parsers.cfparse('I Set HEADER param request content type as {header_conent_type:Char}', extra_types=dict(Char=str)))
-def header(header_conent_type):
-    request_headers['Content-Type'] = header_conent_type
-
-
-# You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
-@when('Set request Body')
-def set_request_body():
-    request_bodies['POST'] = {"title": "foo", "body": "bar", "userId": "1"}
-
-
 #You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when(parsers.parse('Set request Body using the data:\n{table_with_header}'))
 def set_request_body(datatable,table_with_header):
     expected_table = parse_str_table(table_with_header)
-    keys=expected_table.get_column(0)
-    values=expected_table.get_column(1)
-    dict_param_value=dict(zip(keys,values))
-    with open('../data/resources/templates/device_template.json', 'r') as json_file:
+    keys = expected_table.get_column(0)
+    values = expected_table.get_column(1)
+    dict_param_value = dict(zip(keys,values))
+    with open( Inizialization.data[':basic_path_template'] + 'device_template.json', 'r') as json_file:
         content = ''.join(json_file.readlines())
         template = Template(content)
         configuration = json.loads(template.substitute(dict_param_value))
@@ -74,11 +63,13 @@ def set_request_body(datatable,table_with_header):
     request_bodies['POST']=configuration
 
 
+
 # You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when('Send POST HTTP request')
 def send_post():
     response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=headers, verify=False)
-    response_texts['POST']=response.text
+    response_texts['POST'] = response.text
+    DataUtils.resources.append(response.text)
     print("post response :"+response.text)
     # extracting response status_code
     statuscode = response.status_code
@@ -167,8 +158,7 @@ def send_message_to_rabbitmq(mock_message, routing_key):
     time.sleep(10)  # This is just for mocking, since rabbitmq messages is not a thing that happens in ms
 
 
-@given(parsers.cfparse(
-    'I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}',
+@given(parsers.cfparse('I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}',
     extra_types=dict(Char=str)))
 def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
     with open(json_file_path, 'r') as j:
@@ -206,8 +196,7 @@ def send_message_to_rabbitmq(message, routing_key):
     assert message_found == True, 'message %s was not found in %s routing key' % (message, routing_key)
 
 
-@then(parsers.parse(
-    'I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}'))
+@then(parsers.parse('I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}'))
 def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     start_time = time.time()
@@ -249,10 +238,38 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
         raise Exception(
             'Field/s expected was not found in %s routing key' % routing_key)
 
-@then(parsers.cfparse('I subscribe to {rabbit_queue:Char} routing key',
-                      extra_types=dict(Char=str)))
+
+@then(parsers.cfparse('I subscribe to {rabbit_queue:Char} routing key', extra_types=dict(Char=str)))
 def subscribe_rabbit_queue(rabbit_queue):
     rabbit_consumer = RabbitMqConsumer(Inizialization.data[':mq_adress'], rabbit_queue)
     tr = threading.Thread(target=rabbit_consumer.main,
                           daemon=True)
     tr.start()
+
+
+
+
+
+
+#---------------------------------------------------------------------------------------------------------------------#
+#-----------------------------------------------Tear Down-------------------------------------------------------------#
+#---------------------------------------------------------------------------------------------------------------------#
+
+def pytest_sessionfinish(session, exitstatus):
+    print("\n-----------Deleting devices created-------------------")
+    print(type(DataUtils.resources))
+    if len(DataUtils.resources) != 0:
+        for device in DataUtils.resources:
+            json_device = json.loads(device)
+            if getMethods.get_device_by_id(service, api_url, headers, json_device["id"]).status_code == 200:
+                deleteMethods.delete_device_by_id(service, api_url, headers, json_device["id"])
+                #deleteMethods.delete_device_by_pattern(service, api_url, headers, Inizialization.data[':pattern'])
+
+
+@pytest.fixture(autouse=True, scope='session')
+def delete_device_created():
+    def my_fixture():
+        # setup_stuff
+        yield
+        # teardown_stuff
+

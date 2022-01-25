@@ -1,0 +1,97 @@
+============================= test session starts ==============================
+platform linux -- Python 3.8.10, pytest-5.3.5, py-1.8.1, pluggy-0.13.1 -- /home/miguel/Escritorio/poc-pytes-bdd-device/tfc-poc-pytest-bdd-device-service/enviromentbdd/bin/python
+cachedir: .pytest_cache
+rootdir: /home/miguel/Escritorio/poc-pytes-bdd-device/tfc-poc-pytest-bdd-device-service/test_acceptance/step_defs
+plugins: bdd-5.0.0
+collecting ... collected 1 item
+
+test_post_service.py::test_post_one_devices url :http://127.0.0.1:8080/v1/api/devices
+{'name': 'test-device-1234568', 'management_ip': '10.10.10.225', 'tier_number': 1, 'device_type': '6b6d1986-aa6e-4697-8083-189d01d4133f', 'configuration_values': {'config-option-mandatory': 'test 1', 'config-option-not-mandatory': 'test 1', 'config-option-secret': 'test 1', 'config-option-integer': 42, 'config-option-boolean': False, 'config-option-no-regex': 'test 1'}, 'custom_metadata': {'name_of_custom_metadata': 'value of custom metadata', 'old_id': 'e1bbfed5-8698-4116-b761-b2f3e298dd56', 'location': 'roof'}}
+post response :{
+    "id": "b51f59d8-cb51-4f11-87a4-c433c0ebf6a0",
+    "name": "test-device-1234568",
+    "management_ip": "10.10.10.225",
+    "tier_number": 1,
+    "configuration_values": {
+        "config-option-mandatory": "test 1",
+        "config-option-not-mandatory": "test 1",
+        "config-option-secret": "*****",
+        "config-option-integer": 42,
+        "config-option-boolean": false,
+        "config-option-no-regex": "test 1"
+    },
+    "custom_metadata": {
+        "name_of_custom_metadata": "value of custom metadata",
+        "old_id": "e1bbfed5-8698-4116-b761-b2f3e298dd56",
+        "location": "roof"
+    },
+    "device_monitoring": {
+        "device_status": null,
+        "updated_at": "2022-01-25T11:49:01+01:00"
+    },
+    "delete_origin": null,
+    "assigned_to": [],
+    "production_id": "4675d8e0-c0a8-11ea-956b-cfe50a02a49e",
+    "created_at": "2022-01-25T11:49:01+01:00",
+    "updated_at": "2022-01-25T11:49:01+01:00",
+    "deleted_at": null,
+    "_links": {
+        "self": {
+            "href": "/v1/api/devices/b51f59d8-cb51-4f11-87a4-c433c0ebf6a0"
+        },
+        "device_type": {
+            "href": "/v1/api/devicetypes/6b6d1986-aa6e-4697-8083-189d01d4133f",
+            "id": "6b6d1986-aa6e-4697-8083-189d01d4133f"
+        },
+        "created_by": {
+            "href": null
+        },
+        "updated_by": {
+            "href": null
+        }
+    },
+    "_embedded": {
+        "device_type": {
+            "id": "6b6d1986-aa6e-4697-8083-189d01d4133f",
+            "name": "Device type 0 from Vendor 01",
+            "description": "Device description",
+            "configuration_options": {},
+            "created_at": "2021-12-15T10:13:43+01:00",
+            "updated_at": "2021-12-15T10:13:43+01:00",
+            "_links": {
+                "self": {
+                    "href": "/v1/api/devicetypes/6b6d1986-aa6e-4697-8083-189d01d4133f"
+                },
+                "vendor": {
+                    "href": "/v1/api/vendors/a7db7519-6743-49d0-8618-42bd85ea9e3e"
+                }
+            },
+            "_embedded": {
+                "vendor": {
+                    "id": "a7db7519-6743-49d0-8618-42bd85ea9e3e",
+                    "name": "Vendor 01",
+                    "created_at": "2021-12-15T10:13:43+01:00",
+                    "updated_at": "2021-12-15T10:13:43+01:00",
+                    "_links": {
+                        "self": {
+                            "href": "/v1/api/vendors/a7db7519-6743-49d0-8618-42bd85ea9e3e"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+Post rep code ;201
+PASSED
+-----------Deleting-------------------
+<class 'list'>
+
+
+=============================== warnings summary ===============================
+test_post_service.py::test_post_one_devices
+  /home/miguel/Escritorio/poc-pytes-bdd-device/tfc-poc-pytest-bdd-device-service/enviromentbdd/lib/python3.8/site-packages/urllib3/connectionpool.py:997: InsecureRequestWarning: Unverified HTTPS request is being made to host '127.0.0.1'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/latest/warnings.html
+========================= 1 passed, 1 warning in 0.53s =========================
