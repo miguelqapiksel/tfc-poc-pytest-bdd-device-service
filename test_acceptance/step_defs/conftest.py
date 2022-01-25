@@ -237,13 +237,14 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
 #---------------------------------------------------------------------------------------------------------------------#
 
 def pytest_sessionfinish(session, exitstatus):
-    print("\n-----------Deleting-------------------")
+    print("\n-----------Deleting devices created-------------------")
     print(type(DataUtils.resources))
-    if len(DataUtils.resources)!=0:
+    if len(DataUtils.resources) != 0:
         for device in DataUtils.resources:
             json_device = json.loads(device)
-            if getMethods.get_device_by_id(service,api_url,headers,json_device["id"]).status_code == 200:
-                deleteMethods.delete_device_by_id(service,api_url,headers,json_device["id"])
+            if getMethods.get_device_by_id(service, api_url, headers, json_device["id"]).status_code == 200:
+                #deleteMethods.delete_device_by_id(service, api_url, headers, json_device["id"])
+                deleteMethods.delete_device_by_pattern(service, api_url, headers, Inizialization.data[':pattern'])
 
 
 @pytest.fixture(autouse=True, scope='session')

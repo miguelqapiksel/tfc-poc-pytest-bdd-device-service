@@ -8,7 +8,7 @@ collecting ... collected 1 item
 test_post_service.py::test_post_one_devices url :http://127.0.0.1:8080/v1/api/devices
 {'name': 'test-device-1234568', 'management_ip': '10.10.10.225', 'tier_number': 1, 'device_type': '6b6d1986-aa6e-4697-8083-189d01d4133f', 'configuration_values': {'config-option-mandatory': 'test 1', 'config-option-not-mandatory': 'test 1', 'config-option-secret': 'test 1', 'config-option-integer': 42, 'config-option-boolean': False, 'config-option-no-regex': 'test 1'}, 'custom_metadata': {'name_of_custom_metadata': 'value of custom metadata', 'old_id': 'e1bbfed5-8698-4116-b761-b2f3e298dd56', 'location': 'roof'}}
 post response :{
-    "id": "c361a92c-3352-41b9-bba5-347cfe7954ab",
+    "id": "b51f59d8-cb51-4f11-87a4-c433c0ebf6a0",
     "name": "test-device-1234568",
     "management_ip": "10.10.10.225",
     "tier_number": 1,
@@ -27,17 +27,17 @@ post response :{
     },
     "device_monitoring": {
         "device_status": null,
-        "updated_at": "2022-01-24T17:17:02+01:00"
+        "updated_at": "2022-01-25T11:49:01+01:00"
     },
     "delete_origin": null,
     "assigned_to": [],
     "production_id": "4675d8e0-c0a8-11ea-956b-cfe50a02a49e",
-    "created_at": "2022-01-24T17:17:02+01:00",
-    "updated_at": "2022-01-24T17:17:02+01:00",
+    "created_at": "2022-01-25T11:49:01+01:00",
+    "updated_at": "2022-01-25T11:49:01+01:00",
     "deleted_at": null,
     "_links": {
         "self": {
-            "href": "/v1/api/devices/c361a92c-3352-41b9-bba5-347cfe7954ab"
+            "href": "/v1/api/devices/b51f59d8-cb51-4f11-87a4-c433c0ebf6a0"
         },
         "device_type": {
             "href": "/v1/api/devicetypes/6b6d1986-aa6e-4697-8083-189d01d4133f",
@@ -86,7 +86,6 @@ Post rep code ;201
 PASSED
 -----------Deleting-------------------
 <class 'list'>
-c361a92c-3352-41b9-bba5-347cfe7954ab
 
 
 =============================== warnings summary ===============================
@@ -95,4 +94,4 @@ test_post_service.py::test_post_one_devices
     warnings.warn(
 
 -- Docs: https://docs.pytest.org/en/latest/warnings.html
-========================= 1 passed, 1 warning in 0.46s =========================
+========================= 1 passed, 1 warning in 0.53s =========================
