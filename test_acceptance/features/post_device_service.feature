@@ -10,7 +10,7 @@ Scenario: post one device in device service
   When Set request Body using the data:
        |param                    |value                                 |
        | name                    | test-device-1234567                  |
-       | management              | 10.10.78.222                         |
+       | management              | 10.10.79.222                         |
        | devicetype              | f3093e8a-26a2-44d3-ae1d-f636baff58ac |
        | confoptionmandatory     | test 1                               |
        | confoptionnotmandatory  | test 1                               |
