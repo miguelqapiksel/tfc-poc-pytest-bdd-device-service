@@ -218,6 +218,7 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
 
     while not timeout_reached and not message_found and not expectations_not_match:
         if len(DataUtils.rabbit_messages) > 0:
+            print ("MQ-MESSAGE:---->%s" %DataUtils.rabbit_messages)
             for rabbit_message in DataUtils.rabbit_messages:
                 if rabbit_message['queue'] in routing_key:
                     iterator = 0
