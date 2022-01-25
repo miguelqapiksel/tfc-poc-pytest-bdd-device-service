@@ -1,4 +1,5 @@
 import os
+import threading
 from pathlib import Path
 import time
 
@@ -17,6 +18,8 @@ import ssl
 from sttable import parse_str_table
 from dotmap import DotMap
 import requests
+
+from test_acceptance.utils.rabbitconsumer import RabbitMqConsumer
 
 api_endpoints = {}
 request_headers = {}
@@ -200,20 +203,28 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
     seconds = int(Inizialization.data[':pool_messages_minutes_timeout']) * 60
     timeout_reached = False
     message_found = False
+    expectations_not_match = False
 
-    while not timeout_reached and not message_found:
-        if len(Inizialization.rabbit_consumer.rabbit_data) > 0:
-            for rabbit_message in Inizialization.rabbit_consumer.rabbit_data:
+    while not timeout_reached and not message_found and not expectations_not_match:
+        if len(DataUtils.rabbit_messages) > 0:
+            print ("MQ-MESSAGE:---->%s" %DataUtils.rabbit_messages)
+            for rabbit_message in DataUtils.rabbit_messages:
                 if rabbit_message['queue'] in routing_key:
                     iterator = 0
                     while iterator < len(expected_table.rows):
                         field_expected = expected_table.get_column(0)[iterator]
                         expected_data = expected_table.get_column(1)[iterator]
-                        field_value_to_dict = DataUtils.convert_field_expected_to_dict(
-                            field_expected, rabbit_message['body'])
-                        if field_value_to_dict is not None:
-                            if expected_data in field_value_to_dict:
+                        if DataUtils.is_a_command(expected_data):
+                            expected_data = eval(expected_data)
+                        field_value = DataUtils.convert_field_expected_to_dict(
+                                field_expected, rabbit_message['message'])
+                        if field_value is not None:
+                            if expected_data in field_value:
                                 message_found = True
+                            else:
+                                expectations_not_match = True # This is going to force the loop since one of the expectation was not matched
+                                if expectations_not_match: raise Exception(
+                                    'the value for: %s was different from the expected one --> %s != %s' % (field_expected, expected_data, field_value))
                         iterator+=1
 
         # print ("keep pooling, there are no messages in the queue")
@@ -225,7 +236,15 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
 
     if not message_found:
         raise Exception(
-            'Field expected was not found in %s routing key' % routing_key)
+            'Field/s expected was not found in %s routing key' % routing_key)
+
+
+@then(parsers.cfparse('I subscribe to {rabbit_queue:Char} routing key', extra_types=dict(Char=str)))
+def subscribe_rabbit_queue(rabbit_queue):
+    rabbit_consumer = RabbitMqConsumer(Inizialization.data[':mq_adress'], rabbit_queue)
+    tr = threading.Thread(target=rabbit_consumer.main,
+                          daemon=True)
+    tr.start()
 
 
 
@@ -253,3 +272,4 @@ def delete_device_created():
         # setup_stuff
         yield
         # teardown_stuff
+
