@@ -224,7 +224,7 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
                     while iterator < len(expected_table.rows):
                         field_expected = expected_table.get_column(0)[iterator]
                         expected_data = expected_table.get_column(1)[iterator]
-                        if 'response_texts' in expected_data:
+                        if DataUtils.is_a_command(expected_data):
                             expected_data = eval(expected_data)
                         field_value = DataUtils.convert_field_expected_to_dict(
                                 field_expected, rabbit_message['message'])
