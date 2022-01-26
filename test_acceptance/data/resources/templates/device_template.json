@@ -9,7 +9,14 @@
     "config-option-secret": "${confoptionsecret}",
     "config-option-integer": 42,
     "config-option-boolean": false,
-    "config-option-no-regex": "${confoptionnoreguex}"
+    "config-option-no-regex": "${confoptionnoreguex}",
+    "configuration_template": "AHS_AVP_WAN",
+    "first_audio_mc_primary": "224.255.255.255",
+    "first_meta_mc_primary": "225.255.255.255",
+    "first_video_mc_primary":"225.255.255.255",
+    "io_module_in": "4",
+    "io_module_out": "5"
+
   },
   "custom_metadata": {
     "name_of_custom_metadata": "${nameofcustommetadata}",

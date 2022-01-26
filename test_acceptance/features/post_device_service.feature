@@ -11,8 +11,8 @@ Scenario: post one device in device service
        |param                    |value                                     |
        | devicetype              | f3093e8a-26a2-44d3-ae1d-f636baff58ac     |
        | name                    | manager.create_random_name()             |
-       | management              | 10.10.10.225                             |
-       | devicetype              | 6b6d1986-aa6e-4697-8083-189d01d4133f     |
+       | management              | 10.46.25.226                             |
+       | devicetype              | 9aefedf0-2573-11e9-8346-139ab5900c6e     |
        | confoptionmandatory     | test 1                                   |
        | confoptionnotmandatory  | test 1                                   |
        | confoptionsecret        | test 1                                   |
@@ -29,4 +29,8 @@ Scenario: post one device in device service
     | attributes.entity     | device                           |
     | attributes.action     | create                           |
     | attributes.routingKey | device.create                    |
+  When I Send a GET HTTP request to service flow with /devices/*json.loads(DataUtils.resources[0])['id']*/flows/senders
+  Then last response should contain:
+    | value | expect                                                                             |
+    | device_id    | json.loads(DataUtils.resources[0])['id'] |
 

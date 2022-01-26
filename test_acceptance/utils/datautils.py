@@ -1,6 +1,7 @@
 import re
+import json
 from dotmap import DotMap
-commands_allowed = ['json.loads','manager.create_random_name()'] #This list must contains the commands we want to have controll in our executions
+commands_allowed = ['json.loads','manager.create_random_name()', 'DataUtils'] #This list must contains the commands we want to have controll in our executions
 
 class DataUtils(object):
     last_response = {} #last response GET,DELETE,PUT,POST,PATCH should be add it in here
@@ -19,5 +20,16 @@ class DataUtils(object):
         if re.compile('|'.join(commands_allowed), re.IGNORECASE).search(expected_field) is not None:
             return True
 
+    # def convert_request(request):
+    #     request_value = request[request.index("*") + 1:request.rindex("*")]
+    #     if DataUtils.is_a_command(request):
+    #         request_url = request_url.replace(request, eval(request)).replace("*", '')
+    #     return request_url
+    #
+    def convert_field_expected_to_dict_last_response(expected_field,message):
+        eval_command = ""
+        for split_expected_field in expected_field.split("."):
+            eval_command += '.get("%s")'% split_expected_field
+        return eval ('DotMap(message)%s' % eval_command)
 
 datautils = DataUtils()

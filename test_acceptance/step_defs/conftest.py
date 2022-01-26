@@ -45,21 +45,20 @@ def api_initialization():
     manager = getDataDeviceToPost()
 
 
-
-
 # START POST Scenario
 @given('I Set POST api endpoint')
 def endpoint_to_post():
     api_endpoints['POST_URL'] = api_url + service
-    print('url :'+api_endpoints['POST_URL'])
+    print('url :' + api_endpoints['POST_URL'])
 
-#You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
+
+# You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when(parsers.parse('Set request Body using the data:\n{table_with_header}'))
 def set_request_body(datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     keys = expected_table.get_column(0)
     values = expected_table.get_column(1)
-    #print(eval(manager.create_random_name()))
+    # print(eval(manager.create_random_name()))
     value_evaluate = []
     for data in values:
         if DataUtils.is_a_command(data):
@@ -77,14 +76,13 @@ def set_request_body(datatable, table_with_header):
     request_bodies['POST'] = configuration
 
 
-
 # You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when('Send POST HTTP request')
 def send_post():
     response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=headers, verify=False)
     response_texts['POST'] = response.text
     DataUtils.resources.append(response.text)
-    print("post response :"+response.text)
+    print("post response :" + response.text)
     # extracting response status_code
     statuscode = response.status_code
     response_codes['POST'] = statuscode
@@ -120,7 +118,8 @@ def send_get_http_request(service_name):
     print(headers)
     print("-------------------------------")
 
-    response = requests.get(url=api_endpoints['GET_URL'], headers=headers, verify=False)  # https://jsonplaceholder.typicode.com/posts
+    response = requests.get(url=api_endpoints['GET_URL'], headers=headers,
+                            verify=False)  # https://jsonplaceholder.typicode.com/posts
     DataUtils.last_response = json.loads(response.text)['results']
     # extracting response text
     response_texts['GET'] = response.text
@@ -147,19 +146,19 @@ def verify_response_attribute_values_one_column(datatable, one_col_table_w_heade
     #     exec(y)
 
 
-@then(parsers.parse('last response should contain:\n{table_with_header}'))
-def verify_response_attribute_values_several_columns(datatable, table_with_header):
-    expected_table = parse_str_table(table_with_header)
-    jsonResponse = json.loads(response_texts['GET'])
-    print(jsonResponse['results'][0])
-    iterator = 0
-    while iterator < len(expected_table.rows):
-        field_expected = expected_table.get_column(0)[iterator]
-        expected_data = expected_table.get_column(1)[iterator]
-
-        if not field_expected in jsonResponse['results'][0]: raise Exception('the field:' + field_expected + ' is not in the response')
-        exec(expected_data)
-        iterator += 1
+# @then(parsers.parse('last response should contain:\n{table_with_header}'))
+# def verify_response_attribute_values_several_columns(datatable, table_with_header):
+#     expected_table = parse_str_table(table_with_header)
+#     jsonResponse = json.loads(response_texts['GET'])
+#     print(jsonResponse['results'][0])
+#     iterator = 0
+#     while iterator < len(expected_table.rows):
+#         field_expected = expected_table.get_column(0)[iterator]
+#         expected_data = expected_table.get_column(1)[iterator]
+#
+#         if not field_expected in jsonResponse['results'][0]: raise Exception('the field:' + field_expected + ' is not in the response')
+#         exec(expected_data)
+#         iterator += 1
 
 
 @given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}',
@@ -172,7 +171,8 @@ def send_message_to_rabbitmq(mock_message, routing_key):
     time.sleep(10)  # This is just for mocking, since rabbitmq messages is not a thing that happens in ms
 
 
-@given(parsers.cfparse('I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}',
+@given(parsers.cfparse(
+    'I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}',
     extra_types=dict(Char=str)))
 def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
     with open(json_file_path, 'r') as j:
@@ -210,7 +210,8 @@ def send_message_to_rabbitmq(message, routing_key):
     assert message_found == True, 'message %s was not found in %s routing key' % (message, routing_key)
 
 
-@then(parsers.parse('I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}'))
+@then(parsers.parse(
+    'I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}'))
 def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     start_time = time.time()
@@ -221,7 +222,7 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
 
     while not timeout_reached and not message_found and not expectations_not_match:
         if len(DataUtils.rabbit_messages) > 0:
-            print ("MQ-MESSAGE:---->%s" %DataUtils.rabbit_messages)
+            print("MQ-MESSAGE:---->%s" % DataUtils.rabbit_messages)
             for rabbit_message in DataUtils.rabbit_messages:
                 if rabbit_message['queue'] in routing_key:
                     iterator = 0
@@ -231,15 +232,16 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
                         if DataUtils.is_a_command(expected_data):
                             expected_data = eval(expected_data)
                         field_value = DataUtils.convert_field_expected_to_dict(
-                                field_expected, rabbit_message['message'])
+                            field_expected, rabbit_message['message'])
                         if field_value is not None:
                             if expected_data in field_value:
                                 message_found = True
                             else:
-                                expectations_not_match = True # This is going to force the loop since one of the expectation was not matched
+                                expectations_not_match = True  # This is going to force the loop since one of the expectation was not matched
                                 if expectations_not_match: raise Exception(
-                                    'the value for: %s was different from the expected one --> %s != %s' % (field_expected, expected_data, field_value))
-                        iterator+=1
+                                    'the value for: %s was different from the expected one --> %s != %s' % (
+                                    field_expected, expected_data, field_value))
+                        iterator += 1
 
         # print ("keep pooling, there are no messages in the queue")
         current_time = time.time()
@@ -261,29 +263,81 @@ def subscribe_rabbit_queue(rabbit_queue):
     tr.start()
 
 
+@when(
+    parsers.cfparse('I Send a GET HTTP request to service {service:Char} with {request:Char}', extra_types=dict(Char=str)))
+def send_get_http_request(service,request):
+    # sending get request and saving response as response object
+    print("--------------------------")
+    print(Inizialization.data[':%s_url'% service])
+    print(headers)
+    print(Inizialization.data[':%s_url'% service])
+    print("-------------------------------")
+
+    request_command = request[request.index("*") + 1:request.rindex("*")]
+    request = request.replace(request_command, eval(request_command)).replace("*",'')
+
+    response = requests.get(url=Inizialization.data[':%s_url'% service]
+                                + request, headers=headers,
+                            verify=False)  # https://jsonplaceholder.typicode.com/posts
+    # extracting response text
+    response_texts['GET'] = response.text
+    print("Response from GET ---> : %s" % response.text)
+    DataUtils.last_response = response.text
+    # extracting response status_code
+    statuscode = response.status_code
+    response_codes['GET'] = statuscode
 
 
+@then(parsers.parse('last response should contain:\n{table_with_header}'))
+def last_response_check(datatable, table_with_header):
+    expected_table = parse_str_table(table_with_header)
+
+    message_found = False
+    expectations_not_match = False
+
+    while not message_found and not expectations_not_match:
+        if len(DataUtils.last_response) > 0:
+            iterator = 0
+            while iterator < len(expected_table.rows):
+                field_expected = expected_table.get_column(0)[iterator]
+                expected_data = expected_table.get_column(1)[iterator]
+                if DataUtils.is_a_command(expected_data):
+                    expected_data = eval(expected_data)
+                field_value = DataUtils.convert_field_expected_to_dict_last_response(
+                    field_expected, json.loads(DataUtils.last_response)['results'][0])
+                if field_value is not None:
+                    if expected_data in field_value:
+                        message_found = True
+                    else:
+                        expectations_not_match = True  # This is going to force the loop since one of the expectation was not matched
+                        if expectations_not_match: raise Exception(
+                            'the value for: %s was different from the expected one --> %s != %s' % (
+                            field_expected, expected_data, field_value))
+                iterator += 1
+
+    if not message_found:
+        raise Exception(
+            'Value/s expected was not found in %s routing key')
 
 
-#---------------------------------------------------------------------------------------------------------------------#
-#-----------------------------------------------Tear Down-------------------------------------------------------------#
-#---------------------------------------------------------------------------------------------------------------------#
+# ---------------------------------------------------------------------------------------------------------------------#
+# -----------------------------------------------Tear Down-------------------------------------------------------------#
+# ---------------------------------------------------------------------------------------------------------------------#
 
-def pytest_sessionfinish(session, exitstatus):
-    print("\n-----------Deleting devices created-------------------")
-    print(type(DataUtils.resources))
-    if len(DataUtils.resources) != 0:
-        for device in DataUtils.resources:
-            json_device = json.loads(device)
-            if getMethods.get_device_by_id(service, api_url, headers, json_device["id"]).status_code == 200:
-                deleteMethods.delete_device_by_id(service, api_url, headers, json_device["id"])
-                #deleteMethods.delete_device_by_pattern(service, api_url, headers, Inizialization.data[':pattern'])
-
-
-@pytest.fixture(autouse=True, scope='session')
-def delete_device_created():
-    def my_fixture():
-        # setup_stuff
-        yield
-        # teardown_stuff
-
+# def pytest_sessionfinish(session, exitstatus):
+#     print("\n-----------Deleting devices created-------------------")
+#     print(type(DataUtils.resources))
+#     if len(DataUtils.resources) != 0:
+#         for device in DataUtils.resources:
+#             json_device = json.loads(device)
+#             if getMethods.get_device_by_id(service, api_url, headers, json_device["id"]).status_code == 200:
+#                 deleteMethods.delete_device_by_id(service, api_url, headers, json_device["id"])
+#                 # deleteMethods.delete_device_by_pattern(service, api_url, headers, Inizialization.data[':pattern'])
+#
+#
+# @pytest.fixture(autouse=True, scope='session')
+# def delete_device_created():
+#     def my_fixture():
+#         # setup_stuff
+#         yield
+#         # teardown_stuff
