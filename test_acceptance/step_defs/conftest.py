@@ -11,15 +11,15 @@ from step_defs.env import Inizialization
 from step_defs.datatable import datatable
 from step_defs.delete_methods import deleteMethods
 from step_defs.get_methods import getMethods
-from utils.datautils import DataUtils
 from utils.rabbitmocksender import RabbitMockSender
 from utils.datautils import DataUtils
+from step_defs.data_device_post import getDataDeviceToPost
 import ssl
 from sttable import parse_str_table
 from dotmap import DotMap
 import requests
 
-from test_acceptance.utils.rabbitconsumer import RabbitMqConsumer
+from utils.rabbitconsumer import RabbitMqConsumer
 
 api_endpoints = {}
 request_headers = {}
@@ -34,12 +34,17 @@ def api_initialization():
     global api_url
     global service
     global headers
+    global manager
+    global ipv4
     api_url = Inizialization.data[':basic_url']
     service = Inizialization.data[':service']
     #    request_headers['Content-Type'] = Inizialization.data[':header_content_type']
     request_headers['X-Context'] = Inizialization.data[':header_x_context']
     request_headers['X-Production_Id'] = Inizialization.data[':header_x_production_id_default']
     headers = request_headers
+    manager = getDataDeviceToPost()
+
+
 
 
 # START POST Scenario
@@ -50,17 +55,26 @@ def endpoint_to_post():
 
 #You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when(parsers.parse('Set request Body using the data:\n{table_with_header}'))
-def set_request_body(datatable,table_with_header):
+def set_request_body(datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     keys = expected_table.get_column(0)
     values = expected_table.get_column(1)
-    dict_param_value = dict(zip(keys,values))
-    with open( Inizialization.data[':basic_path_template'] + 'device_template.json', 'r') as json_file:
+    #print(eval(manager.create_random_name()))
+    value_evaluate = []
+    for data in values:
+        if DataUtils.is_a_command(data):
+            print("the data is")
+            print(data)
+            value_evaluate.append(eval(data))
+        else:
+            value_evaluate.append(data)
+    dict_param_value = dict(zip(keys, value_evaluate))
+    with open(Inizialization.data[':basic_path_template'] + 'device_template.json', 'r') as json_file:
         content = ''.join(json_file.readlines())
         template = Template(content)
         configuration = json.loads(template.substitute(dict_param_value))
         print(configuration)
-    request_bodies['POST']=configuration
+    request_bodies['POST'] = configuration
 
 
 

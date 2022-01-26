@@ -1,6 +1,6 @@
 import re
 from dotmap import DotMap
-commands_allowed = ['json.loads'] #This list must contains the commands we want to have controll in our executions
+commands_allowed = ['json.loads','manager.create_random_name()'] #This list must contains the commands we want to have controll in our executions
 
 class DataUtils(object):
     last_response = {} #last response GET,DELETE,PUT,POST,PATCH should be add it in here
