@@ -10,12 +10,12 @@
     "config-option-integer": 42,
     "config-option-boolean": false,
     "config-option-no-regex": "${confoptionnoreguex}",
-    "configuration_template": "AHS_AVP_WAN",
-    "first_audio_mc_primary": "224.255.255.255",
-    "first_meta_mc_primary": "225.255.255.255",
-    "first_video_mc_primary":"225.255.255.255",
-    "io_module_in": "4",
-    "io_module_out": "5"
+    "configuration_template": "${configuration_template}",
+    "first_audio_mc_primary": "${first_audio_mc_primary}",
+    "first_meta_mc_primary": "${first_meta_mc_primary}",
+    "first_video_mc_primary":"${first_video_mc_primary}",
+    "io_module_in": "${io_module_in}",
+    "io_module_out": "${io_module_out}"
 
   },
   "custom_metadata": {
