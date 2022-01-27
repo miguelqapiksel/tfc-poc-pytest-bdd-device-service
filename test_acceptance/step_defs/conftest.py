@@ -356,20 +356,20 @@ def pytest_sessionstart( ):
 # -----------------------------------------------Tear Down-------------------------------------------------------------#
 # ---------------------------------------------------------------------------------------------------------------------#
 
-# def pytest_sessionfinish(session, exitstatus):
-#     print("\n-----------Deleting devices created-------------------")
-#     print(type(DataUtils.resources))
-#     if len(DataUtils.resources) != 0:
-#         for device in DataUtils.resources:
-#             json_device = json.loads(device)
-#             if getMethods.get_device_by_id(service, api_url, headers, json_device["id"]).status_code == 200:
-#                 deleteMethods.delete_device_by_id(service, api_url, headers, json_device["id"])
-#                 # deleteMethods.delete_device_by_pattern(service, api_url, headers, Inizialization.data[':pattern'])
-#
-#
-# @pytest.fixture(autouse=True, scope='session')
-# def delete_device_created():
-#     def my_fixture():
-#         # setup_stuff
-#         yield
-#         # teardown_stuff
+def pytest_sessionfinish(session, exitstatus):
+    print("\n-----------Deleting devices created-------------------")
+    print(type(DataUtils.resources))
+    if len(DataUtils.resources) != 0:
+        for device in DataUtils.resources:
+            json_device = json.loads(device)
+            if getMethods.get_device_by_id(service, api_url, headers, json_device["id"]).status_code == 200:
+                deleteMethods.delete_device_by_id(service, api_url, headers, json_device["id"])
+                # deleteMethods.delete_device_by_pattern(service, api_url, headers, Inizialization.data[':pattern'])
+
+
+@pytest.fixture(autouse=True, scope='session')
+def delete_device_created():
+    def my_fixture():
+        # setup_stuff
+        yield
+        # teardown_stuff
