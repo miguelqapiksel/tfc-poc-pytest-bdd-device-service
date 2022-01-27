@@ -2,7 +2,6 @@ import os
 import threading
 from pathlib import Path
 import time
-
 import pytest
 from string import Template
 import json
@@ -14,12 +13,14 @@ from step_defs.get_methods import getMethods
 from utils.rabbitmocksender import RabbitMockSender
 from utils.datautils import DataUtils
 from step_defs.data_device_post import getDataDeviceToPost
+from utils.mysqldatabase import mysqlDataBase
+from utils.rabbitconsumer import RabbitMqConsumer
 import ssl
 from sttable import parse_str_table
 from dotmap import DotMap
 import requests
 
-from utils.rabbitconsumer import RabbitMqConsumer
+
 
 api_endpoints = {}
 request_headers = {}
@@ -29,20 +30,21 @@ request_bodies = {}
 api_url = None
 
 
-@given('I set sample REST API url')
+@given('I initialize REST API main params')
 def api_initialization():
     global api_url
     global service
     global headers
     global manager
     global ipv4
+    global dbmanager
     api_url = Inizialization.data[':basic_url']
     service = Inizialization.data[':service']
-    #    request_headers['Content-Type'] = Inizialization.data[':header_content_type']
     request_headers['X-Context'] = Inizialization.data[':header_x_context']
     request_headers['X-Production_Id'] = Inizialization.data[':header_x_production_id_default']
     headers = request_headers
     manager = getDataDeviceToPost()
+ #   dbmanager = mysqlDataBase(Inizialization.data[':host_data_base'])
 
 
 
@@ -59,7 +61,6 @@ def set_request_body(datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     keys = expected_table.get_column(0)
     values = expected_table.get_column(1)
-    #print(eval(manager.create_random_name()))
     value_evaluate = []
     for data in values:
         if DataUtils.is_a_command(data):
@@ -85,7 +86,6 @@ def send_post():
     response_texts['POST'] = response.text
     DataUtils.resources.append(response.text)
     print("post response :"+response.text)
-    # extracting response status_code
     statuscode = response.status_code
     response_codes['POST'] = statuscode
 
@@ -115,10 +115,10 @@ def set_get_api_endpoint():
 @when(parsers.cfparse('Send GET HTTP request to {service_name:Char} service', extra_types=dict(Char=str)))
 def send_get_http_request(service_name):
     # sending get request and saving response as response object
-    print("--------------------------")
-    print(api_endpoints['GET_URL'])
-    print(headers)
-    print("-------------------------------")
+   # print("--------------------------")
+   # print(api_endpoints['GET_URL'])
+   # print(headers)
+   # print("-------------------------------")
 
     response = requests.get(url=api_endpoints['GET_URL'], headers=headers, verify=False)  # https://jsonplaceholder.typicode.com/posts
     DataUtils.last_response = json.loads(response.text)['results']
@@ -127,6 +127,14 @@ def send_get_http_request(service_name):
     # extracting response status_code
     statuscode = response.status_code
     response_codes['GET'] = statuscode
+    DataUtils.last_response['GET'] = response.text
+
+@when('I send a GET HTTP request by id to the device service')
+def send_get_http_request_by_id():
+    json_device = json.loads(response_texts['POST'])
+    response = getMethods.get_device_by_id(service, api_url, headers, json_device["id"])
+    DataUtils.last_response['GET'] = response.text
+    response_texts['GET'] = response.text
 
 
 @then(parsers.cfparse('I receive valid HTTP response code 200 for {request_name:Char}', extra_types=dict(Char=str)))
@@ -151,19 +159,18 @@ def verify_response_attribute_values_one_column(datatable, one_col_table_w_heade
 def verify_response_attribute_values_several_columns(datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     jsonResponse = json.loads(response_texts['GET'])
-    print(jsonResponse['results'][0])
+    jsonResponseFinal = jsonResponse['results'][0] if 'results' in jsonResponse else jsonResponse
     iterator = 0
     while iterator < len(expected_table.rows):
         field_expected = expected_table.get_column(0)[iterator]
         expected_data = expected_table.get_column(1)[iterator]
 
-        if not field_expected in jsonResponse['results'][0]: raise Exception('the field:' + field_expected + ' is not in the response')
+        if not field_expected in jsonResponseFinal: raise Exception('the field:' + field_expected + ' is not in the response')
         exec(expected_data)
         iterator += 1
 
 
-@given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}',
-                       extra_types=dict(Char=str)))
+@given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}', extra_types=dict(Char=str)))
 def send_message_to_rabbitmq(mock_message, routing_key):
     rabbit_mq_handler = RabbitMockSender(Inizialization.data[':mq_adress'], routing_key,
                                          mock_message)
@@ -172,8 +179,7 @@ def send_message_to_rabbitmq(mock_message, routing_key):
     time.sleep(10)  # This is just for mocking, since rabbitmq messages is not a thing that happens in ms
 
 
-@given(parsers.cfparse('I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}',
-    extra_types=dict(Char=str)))
+@given(parsers.cfparse('I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}', extra_types=dict(Char=str)))
 def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
     with open(json_file_path, 'r') as j:
         json_file_content = j.read()
@@ -185,8 +191,7 @@ def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
     time.sleep(10)  # This is just for mocking, since rabbitmq messages is not a thing that happens in ms
 
 
-@then(parsers.cfparse('I check message {message:Char} exists in RabbitMQ for routing key {routing_key:Char}',
-                      extra_types=dict(Char=str)))
+@then(parsers.cfparse('I check message {message:Char} exists in RabbitMQ for routing key {routing_key:Char}', extra_types=dict(Char=str)))
 def send_message_to_rabbitmq(message, routing_key):
     start_time = time.time()
     seconds = int(Inizialization.data[':pool_messages_minutes_timeout']) * 60
@@ -259,6 +264,24 @@ def subscribe_rabbit_queue(rabbit_queue):
     tr = threading.Thread(target=rabbit_consumer.main,
                           daemon=True)
     tr.start()
+
+
+
+
+
+#---------------------------------------------------Data Base ---------------------------------------------------------#
+@when('I check that the new device created is stored in database')
+def check_device_id_in_database():
+    json_device = json.loads(response_texts['POST'])
+    query=(f"ELECT * FROM device WHERE id = UNHEX(REPLACE('{json_device['id']}', '-', ''))")
+    dbmanager.execute_query(query)
+
+
+
+
+
+
+
 
 
 
