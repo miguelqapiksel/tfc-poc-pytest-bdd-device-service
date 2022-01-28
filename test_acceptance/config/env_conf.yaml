@@ -10,3 +10,4 @@
 :pattern: test-device
 :host_data_base: mysql://root@127.0.0.1:3307/tfc-auth-usvc?serverVersion=10.3.29-MariaDB-1:10.3.29+maria~bionic
 
+

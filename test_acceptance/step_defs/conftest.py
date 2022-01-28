@@ -44,7 +44,7 @@ def api_initialization():
     request_headers['X-Production_Id'] = Inizialization.data[':header_x_production_id_default']
     headers = request_headers
     manager = getDataDeviceToPost()
- #   dbmanager = mysqlDataBase(Inizialization.data[':host_data_base'])
+    dbmanager = mysqlDataBase(Inizialization.data[':host_data_base'])
 
 
 
