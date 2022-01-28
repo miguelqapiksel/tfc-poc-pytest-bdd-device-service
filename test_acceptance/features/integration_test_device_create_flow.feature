@@ -30,15 +30,15 @@ Scenario: Integration E2E test for device C100 creates a sender flow
   Then I receive valid HTTP response code 201
   Then I check message sent to RabbitMQ for routing key device.create should contain:
     | value                 | expect                           |
-    | attributes.objectId   | json.loads(response_texts['POST'])['id']           |
+    | attributes.objectId   | DataUtils.get_field_from_last_response('id')           |
     | attributes.event      | device.create                    |
     | attributes.entity     | device                           |
     | attributes.action     | create                           |
     | attributes.routingKey | device.create                    |
-  When I Send a GET HTTP request to flow with /devices/*json.loads(DataUtils.resources[0])['id']*/flows/senders?limit=1
+  When I Send a GET HTTP request to flow with /devices/*DataUtils.get_field_from_last_response('id')*/flows/senders?limit=1
   Then last response should contain:
     | value         | expect                                                      |
-    | device_id     | json.loads(DataUtils.resources[0])['id']                    |
+    | device_id     | DataUtils.get_field_from_last_response('device_id')                    |
     | production_id | getMethods.get_conf_value('header_x_production_id_default') |
 
   #Using LAWO a__madi4 deviceType which is not going to trigger a new Flow
@@ -66,6 +66,6 @@ Scenario: Integration E2E test for device C100 creates a sender flow
   Then I receive valid HTTP response code 201
   Then I check message sent to RabbitMQ for routing key device.create should contain:
     | value                 | expect                           |
-    | attributes.objectId   | json.loads(response_texts['POST'])['id']           |
-  When I Send a GET HTTP request to flow with /devices/*json.loads(DataUtils.resources[1])['id']*/flows/senders?limit=1
+    | attributes.objectId   | DataUtils.get_field_from_last_response('id')           |
+  When I Send a GET HTTP request to flow with /devices/*DataUtils.get_field_from_last_response('id')*/flows/senders?limit=1
   Then last response should be empty
