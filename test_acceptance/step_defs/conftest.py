@@ -336,6 +336,12 @@ def last_response_check_empty():
         raise Exception(
             'Last response has data in it %s' % DataUtils.last_response)
 
+@then(parsers.parse('last response should not be empty'))
+def last_response_check_no_empty():
+    if DataUtils.last_response == []:
+        raise Exception(
+            'Last response has no data in it ')
+
 # ---------------------------------------------------------------------------------------------------------------------#
 # -----------------------------------------------Set Up-------------------------------------------------------------#
 # ---------------------------------------------------------------------------------------------------------------------#
