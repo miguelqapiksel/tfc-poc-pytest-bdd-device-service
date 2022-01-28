@@ -2,7 +2,7 @@
 Feature: integration_test_device_create_flow
 
 Background:
-	Given I set sample REST API url
+	Given I initialize REST API main params
 
 #Using deviceType/s which are/is going to trigger a new sendersFlow/receiversFlow
 Scenario Outline: Integration E2E test for devices that create a flow
