@@ -2,6 +2,7 @@ import os
 import threading
 from pathlib import Path
 import time
+
 import pytest
 from string import Template
 import json
@@ -20,7 +21,7 @@ from sttable import parse_str_table
 from dotmap import DotMap
 import requests
 
-
+from utils.rabbitconsumer import RabbitMqConsumer
 
 api_endpoints = {}
 request_headers = {}
@@ -28,6 +29,7 @@ response_codes = {}
 response_texts = {}
 request_bodies = {}
 api_url = None
+threads = []
 
 
 @given('I initialize REST API main params')
@@ -53,7 +55,7 @@ def api_initialization():
 @given('I Set POST api endpoint')
 def endpoint_to_post():
     api_endpoints['POST_URL'] = api_url + service
-    print('url :'+api_endpoints['POST_URL'])
+    print('url :' + api_endpoints['POST_URL'])
 
 #You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when(parsers.parse('Set request Body using the data:\n{table_with_header}'))
@@ -61,16 +63,17 @@ def set_request_body(datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     keys = expected_table.get_column(0)
     values = expected_table.get_column(1)
+    # print(eval(manager.create_random_name()))
     value_evaluate = []
     for data in values:
         if DataUtils.is_a_command(data):
-            print("the data is")
-            print(data)
+        #   print("the data is")
+        #    print(data)
             value_evaluate.append(eval(data))
         else:
             value_evaluate.append(data)
     dict_param_value = dict(zip(keys, value_evaluate))
-    with open(Inizialization.data[':basic_path_template'] + 'device_template.json', 'r') as json_file:
+    with open(Inizialization.data[':basic_path_template'] + file, 'r') as json_file:
         content = ''.join(json_file.readlines())
         template = Template(content)
         configuration = json.loads(template.substitute(dict_param_value))
@@ -82,10 +85,17 @@ def set_request_body(datatable, table_with_header):
 # You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when('Send POST HTTP request')
 def send_post():
-    response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=headers, verify=False)
+    try:
+        response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=headers,
+                                 verify=False)
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+
     response_texts['POST'] = response.text
+    DataUtils.set_last_response(response.text)
     DataUtils.resources.append(response.text)
     print("post response :"+response.text)
+    # extracting response status_code
     statuscode = response.status_code
     response_codes['POST'] = statuscode
 
@@ -120,8 +130,9 @@ def send_get_http_request(service_name):
    # print(headers)
    # print("-------------------------------")
 
-    response = requests.get(url=api_endpoints['GET_URL'], headers=headers, verify=False)  # https://jsonplaceholder.typicode.com/posts
-    DataUtils.last_response = json.loads(response.text)['results']
+    response = requests.get(url=api_endpoints['GET_URL'], headers=headers,
+                            verify=False)  # https://jsonplaceholder.typicode.com/posts
+    DataUtils.set_last_response(response.text)
     # extracting response text
     response_texts['GET'] = response.text
     # extracting response status_code
@@ -155,19 +166,19 @@ def verify_response_attribute_values_one_column(datatable, one_col_table_w_heade
     #     exec(y)
 
 
-@then(parsers.parse('last response should contain:\n{table_with_header}'))
-def verify_response_attribute_values_several_columns(datatable, table_with_header):
-    expected_table = parse_str_table(table_with_header)
-    jsonResponse = json.loads(response_texts['GET'])
-    jsonResponseFinal = jsonResponse['results'][0] if 'results' in jsonResponse else jsonResponse
-    iterator = 0
-    while iterator < len(expected_table.rows):
-        field_expected = expected_table.get_column(0)[iterator]
-        expected_data = expected_table.get_column(1)[iterator]
-
-        if not field_expected in jsonResponseFinal: raise Exception('the field:' + field_expected + ' is not in the response')
-        exec(expected_data)
-        iterator += 1
+# @then(parsers.parse('last response should contain:\n{table_with_header}'))
+# def verify_response_attribute_values_several_columns(datatable, table_with_header):
+#     expected_table = parse_str_table(table_with_header)
+#     jsonResponse = json.loads(response_texts['GET'])
+#     print(jsonResponse['results'][0])
+#     iterator = 0
+#     while iterator < len(expected_table.rows):
+#         field_expected = expected_table.get_column(0)[iterator]
+#         expected_data = expected_table.get_column(1)[iterator]
+#
+#         if not field_expected in jsonResponse['results'][0]: raise Exception('the field:' + field_expected + ' is not in the response')
+#         exec(expected_data)
+#         iterator += 1
 
 
 @given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}', extra_types=dict(Char=str)))
@@ -215,7 +226,8 @@ def send_message_to_rabbitmq(message, routing_key):
     assert message_found == True, 'message %s was not found in %s routing key' % (message, routing_key)
 
 
-@then(parsers.parse('I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}'))
+@then(parsers.parse(
+    'I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}'))
 def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     start_time = time.time()
@@ -226,9 +238,10 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
 
     while not timeout_reached and not message_found and not expectations_not_match:
         if len(DataUtils.rabbit_messages) > 0:
-            print ("MQ-MESSAGE:---->%s" %DataUtils.rabbit_messages)
             for rabbit_message in DataUtils.rabbit_messages:
-                if rabbit_message['queue'] in routing_key:
+                if rabbit_message['queue'] in routing_key \
+                        and DataUtils.return_device_id_from_rabbit_message(rabbit_message) in json.loads(response_texts['POST'])['id']:
+                    print("MQ-MESSAGE:---->%s" % DataUtils.rabbit_messages)
                     iterator = 0
                     while iterator < len(expected_table.rows):
                         field_expected = expected_table.get_column(0)[iterator]
@@ -236,15 +249,16 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
                         if DataUtils.is_a_command(expected_data):
                             expected_data = eval(expected_data)
                         field_value = DataUtils.convert_field_expected_to_dict(
-                                field_expected, rabbit_message['message'])
+                            field_expected, rabbit_message['message'])
                         if field_value is not None:
                             if expected_data in field_value:
                                 message_found = True
                             else:
-                                expectations_not_match = True # This is going to force the loop since one of the expectation was not matched
+                                expectations_not_match = True  # This is going to force the loop since one of the expectation was not matched
                                 if expectations_not_match: raise Exception(
-                                    'the value for: %s was different from the expected one --> %s != %s' % (field_expected, expected_data, field_value))
-                        iterator+=1
+                                    'the value for: %s was different from the expected one --> %s != %s' % (
+                                        field_expected, expected_data, field_value))
+                        iterator += 1
 
         # print ("keep pooling, there are no messages in the queue")
         current_time = time.time()
@@ -258,11 +272,92 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
             'Field/s expected was not found in %s routing key' % routing_key)
 
 
-@then(parsers.cfparse('I subscribe to {rabbit_queue:Char} routing key', extra_types=dict(Char=str)))
-def subscribe_rabbit_queue(rabbit_queue):
-    rabbit_consumer = RabbitMqConsumer(Inizialization.data[':mq_adress'], rabbit_queue)
+@when(parsers.cfparse('I Send a GET HTTP request to {service:Char} with {request:Char}', extra_types=dict(Char=str)))
+def send_get_http_request(service, request):
+    # sending get request and saving response as response object
+    print("--------------------------")
+    print(Inizialization.data[':%s_url' % service])
+    print(headers)
+    print('Get from --> %s' % Inizialization.data[':%s_url' % service]
+          + DataUtils.convert_request(request))
+    print("-------------------------------")
+    retries = 0
+    empty_body = True
+
+    while retries < int(Inizialization.data[':retries_requests']) and empty_body:
+        try:
+            response = requests.get(url=Inizialization.data[':%s_url' % service]
+                                        + DataUtils.convert_request(request), headers=headers,
+                                    verify=False)  # https://jsonplaceholder.typicode.com/posts
+            if json.loads(response.text)['results'] == []:
+                print("Request attempt %s" % str(retries+1))
+                time.sleep(3)
+            else:
+                empty_body = False
+            retries += 1
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
+
+    # extracting response text
+    response_texts['GET'] = response.text
+    print("Response from GET ---> : %s" % response.text)
+    DataUtils.set_last_response(response.text)
+    # extracting response status_code
+    statuscode = response.status_code
+    response_codes['GET'] = statuscode
+
+
+@then(parsers.parse('last response should contain:\n{table_with_header}'))
+def last_response_check(datatable, table_with_header):
+    expected_table = parse_str_table(table_with_header)
+
+    message_found = False
+    expectations_not_match = False
+
+    while not message_found and not expectations_not_match:
+        if len(DataUtils.last_response) > 0:
+            iterator = 0
+            while iterator < len(expected_table.rows):
+                field_expected = expected_table.get_column(0)[iterator]
+                expected_data = expected_table.get_column(1)[iterator]
+                if DataUtils.is_a_command(expected_data):
+                    expected_data = eval(expected_data)
+                field_value = DataUtils.convert_field_expected_to_dict_last_response(
+                    field_expected, DataUtils.last_response)
+                if field_value is not None:
+                    if expected_data in field_value:
+                        message_found = True
+                    else:
+                        expectations_not_match = True  # This is going to force the loop since one of the expectation was not matched
+                        if expectations_not_match: raise Exception(
+                            'the value for: %s was different from the expected one --> %s != %s' % (
+                                field_expected, expected_data, field_value))
+                iterator += 1
+
+    if not message_found:
+        raise Exception(
+            'Value/s expected was not found in %s routing key')
+
+@then(parsers.parse('last response should be empty'))
+def last_response_check_empty():
+    if not DataUtils.last_response == []:
+        raise Exception(
+            'Last response has data in it %s' % DataUtils.last_response)
+
+@then(parsers.parse('last response should not be empty'))
+def last_response_check_no_empty():
+    if DataUtils.last_response == []:
+        raise Exception(
+            'Last response has no data in it ')
+
+# ---------------------------------------------------------------------------------------------------------------------#
+# -----------------------------------------------Set Up-------------------------------------------------------------#
+# ---------------------------------------------------------------------------------------------------------------------#
+def pytest_sessionstart( ):
+    rabbit_consumer = RabbitMqConsumer(Inizialization.data[':mq_adress'], Inizialization.data[':mq_queues'])
     tr = threading.Thread(target=rabbit_consumer.main,
                           daemon=True)
+    threads.append(tr)
     tr.start()
 
 

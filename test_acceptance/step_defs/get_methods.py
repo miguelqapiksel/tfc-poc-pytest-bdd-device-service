@@ -1,4 +1,6 @@
 import requests
+from step_defs.env import Inizialization
+from utils.datautils import DataUtils
 
 
 class getMethods(object):
@@ -10,5 +12,7 @@ class getMethods(object):
         url = basicurl + service
         response = requests.get(url=url, headers=headers, verify=False)
         return response
+    def get_conf_value(conf_value_to_be_searched):
+        return Inizialization.data[':%s'% conf_value_to_be_searched]
 
 getMethodsDevice = getMethods()

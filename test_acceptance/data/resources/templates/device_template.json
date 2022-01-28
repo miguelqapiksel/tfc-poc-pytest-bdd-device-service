@@ -9,7 +9,14 @@
     "config-option-secret": "${confoptionsecret}",
     "config-option-integer": 42,
     "config-option-boolean": false,
-    "config-option-no-regex": "${confoptionnoreguex}"
+    "config-option-no-regex": "${confoptionnoreguex}",
+    "configuration_template": "${configuration_template}",
+    "first_audio_mc_primary": "${first_audio_mc_primary}",
+    "first_meta_mc_primary": "${first_meta_mc_primary}",
+    "first_video_mc_primary":"${first_video_mc_primary}",
+    "io_module_in": "${io_module_in}",
+    "io_module_out": "${io_module_out}"
+
   },
   "custom_metadata": {
     "name_of_custom_metadata": "${nameofcustommetadata}",
