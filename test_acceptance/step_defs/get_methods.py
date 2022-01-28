@@ -1,5 +1,6 @@
 import requests
 from step_defs.env import Inizialization
+from utils.datautils import DataUtils
 
 
 class getMethods(object):

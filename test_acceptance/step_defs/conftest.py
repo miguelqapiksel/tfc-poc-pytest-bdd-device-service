@@ -87,7 +87,9 @@ def send_post():
         raise SystemExit(err)
 
     response_texts['POST'] = response.text
+    DataUtils.set_last_response(response.text)
     DataUtils.resources.append(response.text)
+
     print("post response :" + response.text)
     # extracting response status_code
     statuscode = response.status_code
@@ -126,7 +128,7 @@ def send_get_http_request(service_name):
 
     response = requests.get(url=api_endpoints['GET_URL'], headers=headers,
                             verify=False)  # https://jsonplaceholder.typicode.com/posts
-    DataUtils.last_response = json.loads(response.text)['results']
+    DataUtils.set_last_response(response.text)
     # extracting response text
     response_texts['GET'] = response.text
     # extracting response status_code
@@ -262,14 +264,6 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
             'Field/s expected was not found in %s routing key' % routing_key)
 
 
-# @then(parsers.cfparse('I subscribe to {rabbit_queue:Char} routing key', extra_types=dict(Char=str)))
-# def subscribe_rabbit_queue(rabbit_queue):
-#     rabbit_consumer = RabbitMqConsumer(Inizialization.data[':mq_adress'], rabbit_queue)
-#     tr = threading.Thread(target=rabbit_consumer.main,
-#                           daemon=True)
-#     threads.append(tr)
-#     tr.start()
-
 @when(parsers.cfparse('I Send a GET HTTP request to {service:Char} with {request:Char}', extra_types=dict(Char=str)))
 def send_get_http_request(service, request):
     # sending get request and saving response as response object
@@ -299,7 +293,7 @@ def send_get_http_request(service, request):
     # extracting response text
     response_texts['GET'] = response.text
     print("Response from GET ---> : %s" % response.text)
-    DataUtils.last_response = response.text
+    DataUtils.set_last_response(response.text)
     # extracting response status_code
     statuscode = response.status_code
     response_codes['GET'] = statuscode
@@ -321,7 +315,7 @@ def last_response_check(datatable, table_with_header):
                 if DataUtils.is_a_command(expected_data):
                     expected_data = eval(expected_data)
                 field_value = DataUtils.convert_field_expected_to_dict_last_response(
-                    field_expected, json.loads(DataUtils.last_response)['results'][0])
+                    field_expected, DataUtils.last_response)
                 if field_value is not None:
                     if expected_data in field_value:
                         message_found = True
@@ -338,9 +332,9 @@ def last_response_check(datatable, table_with_header):
 
 @then(parsers.parse('last response should be empty'))
 def last_response_check_empty():
-    if not json.loads(DataUtils.last_response)['results'] == []:
+    if not DataUtils.last_response == []:
         raise Exception(
-            'Last response has data in it %s' % json.loads(DataUtils.last_response)['results'])
+            'Last response has data in it %s' % DataUtils.last_response)
 
 # ---------------------------------------------------------------------------------------------------------------------#
 # -----------------------------------------------Set Up-------------------------------------------------------------#

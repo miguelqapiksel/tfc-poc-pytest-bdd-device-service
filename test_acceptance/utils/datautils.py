@@ -39,4 +39,18 @@ class DataUtils(object):
     def return_device_id_from_rabbit_message(body_rabbit_message):
         return body_rabbit_message['message']['attributes']['objectId']
 
+    def set_last_response(response_text):
+        if 'results' in response_text:
+            if json.loads(response_text)['results'] == []:
+                DataUtils.last_response = json.loads(response_text)['results']
+            else:
+                DataUtils.last_response = json.loads(response_text)['results'][0]
+        else:
+            DataUtils.last_response = json.loads(response_text)
+
+    def get_field_from_last_response(field):
+            return DataUtils.last_response[field]
+
+
+
 datautils = DataUtils()
