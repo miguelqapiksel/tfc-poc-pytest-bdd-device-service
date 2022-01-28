@@ -15,7 +15,7 @@ pytest -v device_service_happy_path.py --capture=no
 Steps to test e2e devices-->Flow
 --------------------------------
 
-device service:
+#device service:
 .env.local file must have variables (different port)
 BASE_URL_DEVICE_USVC & BASE_URL_FLOW_USVC
 run 
@@ -23,14 +23,14 @@ run
 -bin/console doctrine:migrations:migrate
 -symfony server:start --port=8888
 
-flow service: 
+#flow service: 
 .env.local file must have variables (in device the port from running device)
 BASE_URL_DEVICE_USVC & BASE_URL_FLOW_USVC
 
 run 
 -bin/console doctrine:database:create 
 -bin/console doctrine:migrations:migrate
--symfony server:start --port=8888
+-symfony server:start --port=8080
 -bin/console rabbitmq:consumer pubsub (consumer of flow listening to device)
 
 # Update list 27/01/2022 of devices accepted or not by flow service
