@@ -10,8 +10,8 @@ Scenario Outline: Integration E2E test for devices that create a flow
   When Set request Body from device_template.json using the data:
     | param                  | value                                        |
     | name                   | manager.create_random_name()                 |
-    | management             | manager.create_random_ipv4()                   |
-    | devicetype             | <device_type>         |
+    | management             | manager.create_random_ipv4()                 |
+    | devicetype             | <device_type>                                |
     | confoptionmandatory    | test 1                                       |
     | confoptionnotmandatory | test 1                                       |
     | confoptionsecret       | test 1                                       |

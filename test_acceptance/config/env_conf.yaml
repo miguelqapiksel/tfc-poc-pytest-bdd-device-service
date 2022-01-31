@@ -10,6 +10,8 @@
 :pattern: test-device
 :flow_url: http://127.0.0.1:8080/v1/api
 :retries_requests: 3
-:host_data_base: mysql://root@127.0.0.1:3307/tfc-auth-usvc?serverVersion=10.3.29-MariaDB-1:10.3.29+maria~bionic
-
-
+:device_data_base:
+  :host: 127.0.0.1
+  :port: 3307
+  :user: root
+  :data_base_name: tfc-device-usvc

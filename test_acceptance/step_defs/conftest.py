@@ -46,7 +46,7 @@ def api_initialization():
     request_headers['X-Production_Id'] = Inizialization.data[':header_x_production_id_default']
     headers = request_headers
     manager = getDataDeviceToPost()
-    dbmanager = mysqlDataBase(Inizialization.data[':host_data_base'])
+    dbmanager = mysqlDataBase(Inizialization.data[':device_data_base'][':host'], Inizialization.data[':device_data_base'][':port'], Inizialization.data[':device_data_base'][':user'], Inizialization.data[':device_data_base'][':data_base_name'])
 
 
 
@@ -368,8 +368,11 @@ def pytest_sessionstart( ):
 @when('I check that the new device created is stored in database')
 def check_device_id_in_database():
     json_device = json.loads(response_texts['POST'])
-    query=(f"ELECT * FROM device WHERE id = UNHEX(REPLACE('{json_device['id']}', '-', ''))")
-    dbmanager.execute_query(query)
+    id = json_device['id']
+    query = "SELECT * FROM device WHERE id = UNHEX(REPLACE('{id}', '-', ''));".format(id=id)
+    result_query = dbmanager.execute_query(query)
+    assert(json_device['name'] in result_query[0])
+
 
 
 
