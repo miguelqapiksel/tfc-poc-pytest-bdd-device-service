@@ -1,7 +1,7 @@
 Feature: device_service
 
 Background:
-	Given I set sample REST API url
+	Given I initialize REST API main params
 
 @focus
 Scenario: get all devices

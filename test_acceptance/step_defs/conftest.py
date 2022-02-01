@@ -14,6 +14,15 @@ from test_acceptance.step_defs.get_methods import getMethods
 from test_acceptance.utils.rabbitmocksender import RabbitMockSender
 from test_acceptance.utils.datautils import DataUtils
 from test_acceptance.step_defs.data_device_post import getDataDeviceToPost
+from test_acceptance.step_defs.env import Inizialization
+from test_acceptance.step_defs.datatable import datatable
+from test_acceptance.step_defs.delete_methods import deleteMethods
+from test_acceptance.step_defs.get_methods import getMethods
+from test_acceptance.utils.rabbitmocksender import RabbitMockSender
+from test_acceptance.utils.datautils import DataUtils
+from test_acceptance.step_defs.data_device_post import getDataDeviceToPost
+from test_acceptance.utils.mysqldatabase import mysqlDataBase
+from test_acceptance.utils.rabbitconsumer import RabbitMqConsumer
 import ssl
 from sttable import parse_str_table
 from dotmap import DotMap
@@ -27,22 +36,26 @@ response_codes = {}
 response_texts = {}
 request_bodies = {}
 api_url = None
+threads = []
 
 
-@given('I set sample REST API url')
+@given('I initialize REST API main params')
 def api_initialization():
     global api_url
     global service
     global headers
     global manager
     global ipv4
+    global dbmanager
     api_url = Inizialization.data[':basic_url']
     service = Inizialization.data[':service']
-    #    request_headers['Content-Type'] = Inizialization.data[':header_content_type']
     request_headers['X-Context'] = Inizialization.data[':header_x_context']
     request_headers['X-Production_Id'] = Inizialization.data[':header_x_production_id_default']
     headers = request_headers
     manager = getDataDeviceToPost()
+    dbmanager = mysqlDataBase(Inizialization.data[':device_data_base'][':host'], Inizialization.data[':device_data_base'][':port'], Inizialization.data[':device_data_base'][':user'], Inizialization.data[':device_data_base'][':data_base_name'])
+
+
 
 
 # START POST Scenario
@@ -51,8 +64,7 @@ def endpoint_to_post():
     api_endpoints['POST_URL'] = api_url + service
     print('url :' + api_endpoints['POST_URL'])
 
-
-# You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
+#You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when(parsers.parse('Set request Body using the data:\n{table_with_header}'))
 def set_request_body(datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
@@ -62,13 +74,13 @@ def set_request_body(datatable, table_with_header):
     value_evaluate = []
     for data in values:
         if DataUtils.is_a_command(data):
-            print("the data is")
-            print(data)
+        #   print("the data is")
+        #    print(data)
             value_evaluate.append(eval(data))
         else:
             value_evaluate.append(data)
     dict_param_value = dict(zip(keys, value_evaluate))
-    with open(Inizialization.data[':basic_path_template'] + 'device_template.json', 'r') as json_file:
+    with open(Inizialization.data[':basic_path_template'] + file, 'r') as json_file:
         content = ''.join(json_file.readlines())
         template = Template(content)
         configuration = json.loads(template.substitute(dict_param_value))
@@ -76,13 +88,20 @@ def set_request_body(datatable, table_with_header):
     request_bodies['POST'] = configuration
 
 
+
 # You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when('Send POST HTTP request')
 def send_post():
-    response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=headers, verify=False)
+    try:
+        response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=headers,
+                                 verify=False)
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
+
     response_texts['POST'] = response.text
+    DataUtils.set_last_response(response.text)
     DataUtils.resources.append(response.text)
-    print("post response :" + response.text)
+    print("post response :"+response.text)
     # extracting response status_code
     statuscode = response.status_code
     response_codes['POST'] = statuscode
@@ -109,28 +128,30 @@ def set_get_api_endpoint():
     print('url :' + api_endpoints['GET_URL'])
 
 
-@given(parsers.cfparse('I run {scenario:Char} scenario', extra_types=dict(Char=str)))
-def i_run_the_scenario(scenario):
-    print("\033[2;31;40m\nI'm running the " + scenario + " scenario!!!\033[0;0m")
-
-
 # You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when(parsers.cfparse('Send GET HTTP request to {service_name:Char} service', extra_types=dict(Char=str)))
 def send_get_http_request(service_name):
     # sending get request and saving response as response object
-    print("--------------------------")
-    print(api_endpoints['GET_URL'])
-    print(headers)
-    print("-------------------------------")
+   # print("--------------------------")
+   # print(api_endpoints['GET_URL'])
+   # print(headers)
+   # print("-------------------------------")
 
-    response = requests.get(url=api_endpoints['GET_URL'] + '?order_by=id', headers=headers,
-                            verify=False)  # https://jsonplaceholder.typicode.com/posts
+    response = requests.get(url=api_endpoints['GET_URL'], headers=headers, verify=False)  # https://jsonplaceholder.typicode.com/posts
     DataUtils.last_response = json.loads(response.text)['results']
     # extracting response text
     response_texts['GET'] = response.text
     # extracting response status_code
     statuscode = response.status_code
     response_codes['GET'] = statuscode
+    DataUtils.last_response['GET'] = response.text
+
+@when('I send a GET HTTP request by id to the device service')
+def send_get_http_request_by_id():
+    json_device = json.loads(response_texts['POST'])
+    response = getMethods.get_device_by_id(service, api_url, headers, json_device["id"])
+    DataUtils.last_response['GET'] = response.text
+    response_texts['GET'] = response.text
 
 
 @then(parsers.cfparse('I receive valid HTTP response code 200 for {request_name:Char}', extra_types=dict(Char=str)))
@@ -151,24 +172,22 @@ def verify_response_attribute_values_one_column(datatable, one_col_table_w_heade
     #     exec(y)
 
 
-@then(parsers.parse('last response should contain:\n{table_with_header}'))
-def verify_response_attribute_values_several_columns(datatable, table_with_header):
-    expected_table = parse_str_table(table_with_header)
-    jsonResponse = json.loads(response_texts['GET'])
-    print(jsonResponse['results'][0])
-    iterator = 0
-    while iterator < len(expected_table.rows):
-        field_expected = expected_table.get_column(0)[iterator]
-        expected_data = expected_table.get_column(1)[iterator]
+# @then(parsers.parse('last response should contain:\n{table_with_header}'))
+# def verify_response_attribute_values_several_columns(datatable, table_with_header):
+#     expected_table = parse_str_table(table_with_header)
+#     jsonResponse = json.loads(response_texts['GET'])
+#     print(jsonResponse['results'][0])
+#     iterator = 0
+#     while iterator < len(expected_table.rows):
+#         field_expected = expected_table.get_column(0)[iterator]
+#         expected_data = expected_table.get_column(1)[iterator]
+#
+#         if not field_expected in jsonResponse['results'][0]: raise Exception('the field:' + field_expected + ' is not in the response')
+#         exec(expected_data)
+#         iterator += 1
 
-        if not field_expected in jsonResponse['results'][0]: raise Exception(
-            'the field:' + field_expected + ' is not in the response')
-        exec(expected_data)
-        iterator += 1
 
-
-@given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}',
-                       extra_types=dict(Char=str)))
+@given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}', extra_types=dict(Char=str)))
 def send_message_to_rabbitmq(mock_message, routing_key):
     rabbit_mq_handler = RabbitMockSender(Inizialization.data[':mq_adress'], routing_key,
                                          mock_message)
@@ -177,9 +196,7 @@ def send_message_to_rabbitmq(mock_message, routing_key):
     time.sleep(10)  # This is just for mocking, since rabbitmq messages is not a thing that happens in ms
 
 
-@given(parsers.cfparse(
-    'I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}',
-    extra_types=dict(Char=str)))
+@given(parsers.cfparse('I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}', extra_types=dict(Char=str)))
 def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
     with open(json_file_path, 'r') as j:
         json_file_content = j.read()
@@ -191,8 +208,7 @@ def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
     time.sleep(10)  # This is just for mocking, since rabbitmq messages is not a thing that happens in ms
 
 
-@then(parsers.cfparse('I check message {message:Char} exists in RabbitMQ for routing key {routing_key:Char}',
-                      extra_types=dict(Char=str)))
+@then(parsers.cfparse('I check message {message:Char} exists in RabbitMQ for routing key {routing_key:Char}', extra_types=dict(Char=str)))
 def send_message_to_rabbitmq(message, routing_key):
     start_time = time.time()
     seconds = int(Inizialization.data[':pool_messages_minutes_timeout']) * 60
@@ -228,9 +244,10 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
 
     while not timeout_reached and not message_found and not expectations_not_match:
         if len(DataUtils.rabbit_messages) > 0:
-            print("MQ-MESSAGE:---->%s" % DataUtils.rabbit_messages)
             for rabbit_message in DataUtils.rabbit_messages:
-                if rabbit_message['queue'] in routing_key:
+                if rabbit_message['queue'] in routing_key \
+                        and DataUtils.return_device_id_from_rabbit_message(rabbit_message) in json.loads(response_texts['POST'])['id']:
+                    print("MQ-MESSAGE:---->%s" % DataUtils.rabbit_messages)
                     iterator = 0
                     while iterator < len(expected_table.rows):
                         field_expected = expected_table.get_column(0)[iterator]
@@ -261,31 +278,123 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
             'Field/s expected was not found in %s routing key' % routing_key)
 
 
-@then(parsers.cfparse('I subscribe to {rabbit_queue:Char} routing key', extra_types=dict(Char=str)))
-def subscribe_rabbit_queue(rabbit_queue):
-    rabbit_consumer = RabbitMqConsumer(Inizialization.data[':mq_adress'], rabbit_queue)
+@when(parsers.cfparse('I Send a GET HTTP request to {service:Char} with {request:Char}', extra_types=dict(Char=str)))
+def send_get_http_request(service, request):
+    # sending get request and saving response as response object
+    print("--------------------------")
+    print(Inizialization.data[':%s_url' % service])
+    print(headers)
+    print('Get from --> %s' % Inizialization.data[':%s_url' % service]
+          + DataUtils.convert_request(request))
+    print("-------------------------------")
+    retries = 0
+    empty_body = True
+
+    while retries < int(Inizialization.data[':retries_requests']) and empty_body:
+        try:
+            response = requests.get(url=Inizialization.data[':%s_url' % service]
+                                        + DataUtils.convert_request(request), headers=headers,
+                                    verify=False)  # https://jsonplaceholder.typicode.com/posts
+            if json.loads(response.text)['results'] == []:
+                print("Request attempt %s" % str(retries+1))
+                time.sleep(3)
+            else:
+                empty_body = False
+            retries += 1
+        except requests.exceptions.HTTPError as err:
+            raise SystemExit(err)
+
+    # extracting response text
+    response_texts['GET'] = response.text
+    print("Response from GET ---> : %s" % response.text)
+    DataUtils.set_last_response(response.text)
+    # extracting response status_code
+    statuscode = response.status_code
+    response_codes['GET'] = statuscode
+
+
+@then(parsers.parse('last response should contain:\n{table_with_header}'))
+def last_response_check(datatable, table_with_header):
+    expected_table = parse_str_table(table_with_header)
+
+    message_found = False
+    expectations_not_match = False
+
+    while not message_found and not expectations_not_match:
+        if len(DataUtils.last_response) > 0:
+            iterator = 0
+            while iterator < len(expected_table.rows):
+                field_expected = expected_table.get_column(0)[iterator]
+                expected_data = expected_table.get_column(1)[iterator]
+                if DataUtils.is_a_command(expected_data):
+                    expected_data = eval(expected_data)
+                field_value = DataUtils.convert_field_expected_to_dict_last_response(
+                    field_expected, DataUtils.last_response)
+                if field_value is not None:
+                    if expected_data in field_value:
+                        message_found = True
+                    else:
+                        expectations_not_match = True  # This is going to force the loop since one of the expectation was not matched
+                        if expectations_not_match: raise Exception(
+                            'the value for: %s was different from the expected one --> %s != %s' % (
+                                field_expected, expected_data, field_value))
+                iterator += 1
+
+    if not message_found:
+        raise Exception(
+            'Value/s expected was not found in %s routing key')
+
+@then(parsers.parse('last response should be empty'))
+def last_response_check_empty():
+    if not DataUtils.last_response == []:
+        raise Exception(
+            'Last response has data in it %s' % DataUtils.last_response)
+
+@then(parsers.parse('last response should not be empty'))
+def last_response_check_no_empty():
+    if DataUtils.last_response == []:
+        raise Exception(
+            'Last response has no data in it ')
+
+# ---------------------------------------------------------------------------------------------------------------------#
+# -----------------------------------------------Set Up-------------------------------------------------------------#
+# ---------------------------------------------------------------------------------------------------------------------#
+def pytest_sessionstart( ):
+    rabbit_consumer = RabbitMqConsumer(Inizialization.data[':mq_adress'], Inizialization.data[':mq_queues'])
     tr = threading.Thread(target=rabbit_consumer.main,
                           daemon=True)
+    threads.append(tr)
     tr.start()
 
 
-# ---------------------------------------------------------------------------------------------------------------------#
-# -----------------------------------------------Pytest Marks----------------------------------------------------------#
-# ---------------------------------------------------------------------------------------------------------------------#
-
-def pytest_bdd_apply_tag(tag, function):
-    if tag == 'todo':
-        marker = pytest.mark.skip(reason="Not implemented yet")
-        marker(function)
-        return True
-    else:
-        # Fall back to the default behavior of pytest-bdd
-        return None
 
 
-# ---------------------------------------------------------------------------------------------------------------------#
-# -----------------------------------------------Tear Down-------------------------------------------------------------#
-# ---------------------------------------------------------------------------------------------------------------------#
+
+#---------------------------------------------------Data Base ---------------------------------------------------------#
+@when('I check that the new device created is stored in database')
+def check_device_id_in_database():
+    json_device = json.loads(response_texts['POST'])
+    id = json_device['id']
+    query = "SELECT * FROM device WHERE id = UNHEX(REPLACE('{id}', '-', ''));".format(id=id)
+    result_query = dbmanager.execute_query(query)
+    assert(json_device['name'] in result_query[0])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#---------------------------------------------------------------------------------------------------------------------#
+#-----------------------------------------------Tear Down-------------------------------------------------------------#
+#---------------------------------------------------------------------------------------------------------------------#
 
 def pytest_sessionfinish(session, exitstatus):
     print("\n-----------Deleting devices created-------------------")
@@ -304,3 +413,4 @@ def delete_device_created():
         # setup_stuff
         yield
         # teardown_stuff
+
