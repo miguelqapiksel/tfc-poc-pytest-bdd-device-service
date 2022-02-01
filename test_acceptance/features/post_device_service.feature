@@ -1,10 +1,10 @@
 Feature: post_device_service
-
 Background:
 	Given I set sample REST API url
 
 
 Scenario: post one device in device service
+  Given I run post apocalyptic scenario scenario
   Given I Set POST api endpoint
   Then I subscribe to device.create routing key
   When Set request Body using the data:

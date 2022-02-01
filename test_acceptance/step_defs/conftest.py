@@ -7,19 +7,19 @@ import pytest
 from string import Template
 import json
 from pytest_bdd import scenario, given, when, then, parsers
-from step_defs.env import Inizialization
-from step_defs.datatable import datatable
-from step_defs.delete_methods import deleteMethods
-from step_defs.get_methods import getMethods
-from utils.rabbitmocksender import RabbitMockSender
-from utils.datautils import DataUtils
-from step_defs.data_device_post import getDataDeviceToPost
+from test_acceptance.config.env import Inizialization
+from test_acceptance.step_defs.datatable import datatable
+from test_acceptance.step_defs.delete_methods import deleteMethods
+from test_acceptance.step_defs.get_methods import getMethods
+from test_acceptance.utils.rabbitmocksender import RabbitMockSender
+from test_acceptance.utils.datautils import DataUtils
+from test_acceptance.step_defs.data_device_post import getDataDeviceToPost
 import ssl
 from sttable import parse_str_table
 from dotmap import DotMap
 import requests
 
-from utils.rabbitconsumer import RabbitMqConsumer
+from test_acceptance.utils.rabbitconsumer import RabbitMqConsumer
 
 api_endpoints = {}
 request_headers = {}
@@ -45,21 +45,20 @@ def api_initialization():
     manager = getDataDeviceToPost()
 
 
-
-
 # START POST Scenario
 @given('I Set POST api endpoint')
 def endpoint_to_post():
     api_endpoints['POST_URL'] = api_url + service
-    print('url :'+api_endpoints['POST_URL'])
+    print('url :' + api_endpoints['POST_URL'])
 
-#You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
+
+# You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when(parsers.parse('Set request Body using the data:\n{table_with_header}'))
 def set_request_body(datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     keys = expected_table.get_column(0)
     values = expected_table.get_column(1)
-    #print(eval(manager.create_random_name()))
+    # print(eval(manager.create_random_name()))
     value_evaluate = []
     for data in values:
         if DataUtils.is_a_command(data):
@@ -77,14 +76,13 @@ def set_request_body(datatable, table_with_header):
     request_bodies['POST'] = configuration
 
 
-
 # You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when('Send POST HTTP request')
 def send_post():
     response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=headers, verify=False)
     response_texts['POST'] = response.text
     DataUtils.resources.append(response.text)
-    print("post response :"+response.text)
+    print("post response :" + response.text)
     # extracting response status_code
     statuscode = response.status_code
     response_codes['POST'] = statuscode
@@ -111,6 +109,11 @@ def set_get_api_endpoint():
     print('url :' + api_endpoints['GET_URL'])
 
 
+@given(parsers.cfparse('I run {scenario:Char} scenario', extra_types=dict(Char=str)))
+def i_run_the_scenario(scenario):
+    print("\033[2;31;40m\nI'm running the " + scenario + " scenario!!!\033[0;0m")
+
+
 # You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when(parsers.cfparse('Send GET HTTP request to {service_name:Char} service', extra_types=dict(Char=str)))
 def send_get_http_request(service_name):
@@ -120,7 +123,8 @@ def send_get_http_request(service_name):
     print(headers)
     print("-------------------------------")
 
-    response = requests.get(url=api_endpoints['GET_URL'], headers=headers, verify=False)  # https://jsonplaceholder.typicode.com/posts
+    response = requests.get(url=api_endpoints['GET_URL'] + '?order_by=id', headers=headers,
+                            verify=False)  # https://jsonplaceholder.typicode.com/posts
     DataUtils.last_response = json.loads(response.text)['results']
     # extracting response text
     response_texts['GET'] = response.text
@@ -157,7 +161,8 @@ def verify_response_attribute_values_several_columns(datatable, table_with_heade
         field_expected = expected_table.get_column(0)[iterator]
         expected_data = expected_table.get_column(1)[iterator]
 
-        if not field_expected in jsonResponse['results'][0]: raise Exception('the field:' + field_expected + ' is not in the response')
+        if not field_expected in jsonResponse['results'][0]: raise Exception(
+            'the field:' + field_expected + ' is not in the response')
         exec(expected_data)
         iterator += 1
 
@@ -172,7 +177,8 @@ def send_message_to_rabbitmq(mock_message, routing_key):
     time.sleep(10)  # This is just for mocking, since rabbitmq messages is not a thing that happens in ms
 
 
-@given(parsers.cfparse('I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}',
+@given(parsers.cfparse(
+    'I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}',
     extra_types=dict(Char=str)))
 def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
     with open(json_file_path, 'r') as j:
@@ -210,7 +216,8 @@ def send_message_to_rabbitmq(message, routing_key):
     assert message_found == True, 'message %s was not found in %s routing key' % (message, routing_key)
 
 
-@then(parsers.parse('I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}'))
+@then(parsers.parse(
+    'I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}'))
 def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     start_time = time.time()
@@ -221,7 +228,7 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
 
     while not timeout_reached and not message_found and not expectations_not_match:
         if len(DataUtils.rabbit_messages) > 0:
-            print ("MQ-MESSAGE:---->%s" %DataUtils.rabbit_messages)
+            print("MQ-MESSAGE:---->%s" % DataUtils.rabbit_messages)
             for rabbit_message in DataUtils.rabbit_messages:
                 if rabbit_message['queue'] in routing_key:
                     iterator = 0
@@ -231,15 +238,16 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
                         if DataUtils.is_a_command(expected_data):
                             expected_data = eval(expected_data)
                         field_value = DataUtils.convert_field_expected_to_dict(
-                                field_expected, rabbit_message['message'])
+                            field_expected, rabbit_message['message'])
                         if field_value is not None:
                             if expected_data in field_value:
                                 message_found = True
                             else:
-                                expectations_not_match = True # This is going to force the loop since one of the expectation was not matched
+                                expectations_not_match = True  # This is going to force the loop since one of the expectation was not matched
                                 if expectations_not_match: raise Exception(
-                                    'the value for: %s was different from the expected one --> %s != %s' % (field_expected, expected_data, field_value))
-                        iterator+=1
+                                    'the value for: %s was different from the expected one --> %s != %s' % (
+                                        field_expected, expected_data, field_value))
+                        iterator += 1
 
         # print ("keep pooling, there are no messages in the queue")
         current_time = time.time()
@@ -261,13 +269,23 @@ def subscribe_rabbit_queue(rabbit_queue):
     tr.start()
 
 
+# ---------------------------------------------------------------------------------------------------------------------#
+# -----------------------------------------------Pytest Marks----------------------------------------------------------#
+# ---------------------------------------------------------------------------------------------------------------------#
+
+def pytest_bdd_apply_tag(tag, function):
+    if tag == 'todo':
+        marker = pytest.mark.skip(reason="Not implemented yet")
+        marker(function)
+        return True
+    else:
+        # Fall back to the default behavior of pytest-bdd
+        return None
 
 
-
-
-#---------------------------------------------------------------------------------------------------------------------#
-#-----------------------------------------------Tear Down-------------------------------------------------------------#
-#---------------------------------------------------------------------------------------------------------------------#
+# ---------------------------------------------------------------------------------------------------------------------#
+# -----------------------------------------------Tear Down-------------------------------------------------------------#
+# ---------------------------------------------------------------------------------------------------------------------#
 
 def pytest_sessionfinish(session, exitstatus):
     print("\n-----------Deleting devices created-------------------")
@@ -277,7 +295,7 @@ def pytest_sessionfinish(session, exitstatus):
             json_device = json.loads(device)
             if getMethods.get_device_by_id(service, api_url, headers, json_device["id"]).status_code == 200:
                 deleteMethods.delete_device_by_id(service, api_url, headers, json_device["id"])
-                #deleteMethods.delete_device_by_pattern(service, api_url, headers, Inizialization.data[':pattern'])
+                # deleteMethods.delete_device_by_pattern(service, api_url, headers, Inizialization.data[':pattern'])
 
 
 @pytest.fixture(autouse=True, scope='session')
@@ -286,4 +304,3 @@ def delete_device_created():
         # setup_stuff
         yield
         # teardown_stuff
-
