@@ -14,7 +14,7 @@ from test_acceptance.step_defs.get_methods import getMethods
 from test_acceptance.utils.rabbitmocksender import RabbitMockSender
 from test_acceptance.utils.datautils import DataUtils
 from test_acceptance.step_defs.data_device_post import getDataDeviceToPost
-from test_acceptance.step_defs.env import Inizialization
+from test_acceptance.config.env import Inizialization
 from test_acceptance.step_defs.datatable import datatable
 from test_acceptance.step_defs.delete_methods import deleteMethods
 from test_acceptance.step_defs.get_methods import getMethods
@@ -53,9 +53,10 @@ def api_initialization():
     request_headers['X-Production_Id'] = Inizialization.data[':header_x_production_id_default']
     headers = request_headers
     manager = getDataDeviceToPost()
-    dbmanager = mysqlDataBase(Inizialization.data[':device_data_base'][':host'], Inizialization.data[':device_data_base'][':port'], Inizialization.data[':device_data_base'][':user'], Inizialization.data[':device_data_base'][':data_base_name'])
-
-
+    dbmanager = mysqlDataBase(Inizialization.data[':device_data_base'][':host'],
+                              Inizialization.data[':device_data_base'][':port'],
+                              Inizialization.data[':device_data_base'][':user'],
+                              Inizialization.data[':device_data_base'][':data_base_name'])
 
 
 # START POST Scenario
@@ -64,7 +65,8 @@ def endpoint_to_post():
     api_endpoints['POST_URL'] = api_url + service
     print('url :' + api_endpoints['POST_URL'])
 
-#You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
+
+# You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when(parsers.parse('Set request Body using the data:\n{table_with_header}'))
 def set_request_body(datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
@@ -74,8 +76,8 @@ def set_request_body(datatable, table_with_header):
     value_evaluate = []
     for data in values:
         if DataUtils.is_a_command(data):
-        #   print("the data is")
-        #    print(data)
+            #   print("the data is")
+            #    print(data)
             value_evaluate.append(eval(data))
         else:
             value_evaluate.append(data)
@@ -86,7 +88,6 @@ def set_request_body(datatable, table_with_header):
         configuration = json.loads(template.substitute(dict_param_value))
         print(configuration)
     request_bodies['POST'] = configuration
-
 
 
 # You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
@@ -101,7 +102,7 @@ def send_post():
     response_texts['POST'] = response.text
     DataUtils.set_last_response(response.text)
     DataUtils.resources.append(response.text)
-    print("post response :"+response.text)
+    print("post response :" + response.text)
     # extracting response status_code
     statuscode = response.status_code
     response_codes['POST'] = statuscode
@@ -132,19 +133,21 @@ def set_get_api_endpoint():
 @when(parsers.cfparse('Send GET HTTP request to {service_name:Char} service', extra_types=dict(Char=str)))
 def send_get_http_request(service_name):
     # sending get request and saving response as response object
-   # print("--------------------------")
-   # print(api_endpoints['GET_URL'])
-   # print(headers)
-   # print("-------------------------------")
+    # print("--------------------------")
+    # print(api_endpoints['GET_URL'])
+    # print(headers)
+    # print("-------------------------------")
 
-    response = requests.get(url=api_endpoints['GET_URL'], headers=headers, verify=False)  # https://jsonplaceholder.typicode.com/posts
+    response = requests.get(url=api_endpoints['GET_URL'], headers=headers,
+                            verify=False)  # https://jsonplaceholder.typicode.com/posts
     DataUtils.last_response = json.loads(response.text)['results']
     # extracting response text
-    response_texts['GET'] = response.text
+    # response_texts['GET'] = response.text
     # extracting response status_code
     statuscode = response.status_code
     response_codes['GET'] = statuscode
-    DataUtils.last_response['GET'] = response.text
+     # DataUtils.last_response['GET'] = response.text
+
 
 @when('I send a GET HTTP request by id to the device service')
 def send_get_http_request_by_id():
@@ -187,7 +190,8 @@ def verify_response_attribute_values_one_column(datatable, one_col_table_w_heade
 #         iterator += 1
 
 
-@given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}', extra_types=dict(Char=str)))
+@given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}',
+                       extra_types=dict(Char=str)))
 def send_message_to_rabbitmq(mock_message, routing_key):
     rabbit_mq_handler = RabbitMockSender(Inizialization.data[':mq_adress'], routing_key,
                                          mock_message)
@@ -196,7 +200,9 @@ def send_message_to_rabbitmq(mock_message, routing_key):
     time.sleep(10)  # This is just for mocking, since rabbitmq messages is not a thing that happens in ms
 
 
-@given(parsers.cfparse('I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}', extra_types=dict(Char=str)))
+@given(parsers.cfparse(
+    'I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}',
+    extra_types=dict(Char=str)))
 def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
     with open(json_file_path, 'r') as j:
         json_file_content = j.read()
@@ -208,7 +214,8 @@ def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
     time.sleep(10)  # This is just for mocking, since rabbitmq messages is not a thing that happens in ms
 
 
-@then(parsers.cfparse('I check message {message:Char} exists in RabbitMQ for routing key {routing_key:Char}', extra_types=dict(Char=str)))
+@then(parsers.cfparse('I check message {message:Char} exists in RabbitMQ for routing key {routing_key:Char}',
+                      extra_types=dict(Char=str)))
 def send_message_to_rabbitmq(message, routing_key):
     start_time = time.time()
     seconds = int(Inizialization.data[':pool_messages_minutes_timeout']) * 60
@@ -246,7 +253,8 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
         if len(DataUtils.rabbit_messages) > 0:
             for rabbit_message in DataUtils.rabbit_messages:
                 if rabbit_message['queue'] in routing_key \
-                        and DataUtils.return_device_id_from_rabbit_message(rabbit_message) in json.loads(response_texts['POST'])['id']:
+                        and DataUtils.return_device_id_from_rabbit_message(rabbit_message) in \
+                        json.loads(response_texts['POST'])['id']:
                     print("MQ-MESSAGE:---->%s" % DataUtils.rabbit_messages)
                     iterator = 0
                     while iterator < len(expected_table.rows):
@@ -296,7 +304,7 @@ def send_get_http_request(service, request):
                                         + DataUtils.convert_request(request), headers=headers,
                                     verify=False)  # https://jsonplaceholder.typicode.com/posts
             if json.loads(response.text)['results'] == []:
-                print("Request attempt %s" % str(retries+1))
+                print("Request attempt %s" % str(retries + 1))
                 time.sleep(3)
             else:
                 empty_body = False
@@ -344,11 +352,13 @@ def last_response_check(datatable, table_with_header):
         raise Exception(
             'Value/s expected was not found in %s routing key')
 
+
 @then(parsers.parse('last response should be empty'))
 def last_response_check_empty():
     if not DataUtils.last_response == []:
         raise Exception(
             'Last response has data in it %s' % DataUtils.last_response)
+
 
 @then(parsers.parse('last response should not be empty'))
 def last_response_check_no_empty():
@@ -356,10 +366,11 @@ def last_response_check_no_empty():
         raise Exception(
             'Last response has no data in it ')
 
+
 # ---------------------------------------------------------------------------------------------------------------------#
 # -----------------------------------------------Set Up-------------------------------------------------------------#
 # ---------------------------------------------------------------------------------------------------------------------#
-def pytest_sessionstart( ):
+def pytest_sessionstart():
     rabbit_consumer = RabbitMqConsumer(Inizialization.data[':mq_adress'], Inizialization.data[':mq_queues'])
     tr = threading.Thread(target=rabbit_consumer.main,
                           daemon=True)
@@ -367,34 +378,28 @@ def pytest_sessionstart( ):
     tr.start()
 
 
-
-
-
-#---------------------------------------------------Data Base ---------------------------------------------------------#
+# ---------------------------------------------------Data Base ---------------------------------------------------------#
 @when('I check that the new device created is stored in database')
 def check_device_id_in_database():
     json_device = json.loads(response_texts['POST'])
     id = json_device['id']
     query = "SELECT * FROM device WHERE id = UNHEX(REPLACE('{id}', '-', ''));".format(id=id)
     result_query = dbmanager.execute_query(query)
-    assert(json_device['name'] in result_query[0])
+    assert (json_device['name'] in result_query[0])
 
 
+# ---------------------------------------------------------------------------------------------------------------------#
+# -----------------------------------------------To be deleted---------------------------------------------------------#
+# ---------------------------------------------------------------------------------------------------------------------#
 
 
+@given(parsers.cfparse('I run {scr:Char} scenario', extra_types=dict(Char=str)))
+def i_run_scenario(scr):
+    print("\n\033[2;32;43m" + "Currently running " + scr + " scenario!" + "\033[0;0m")
 
-
-
-
-
-
-
-
-
-
-#---------------------------------------------------------------------------------------------------------------------#
-#-----------------------------------------------Tear Down-------------------------------------------------------------#
-#---------------------------------------------------------------------------------------------------------------------#
+# ---------------------------------------------------------------------------------------------------------------------#
+# -----------------------------------------------Tear Down-------------------------------------------------------------#
+# ---------------------------------------------------------------------------------------------------------------------#
 
 def pytest_sessionfinish(session, exitstatus):
     print("\n-----------Deleting devices created-------------------")
@@ -413,4 +418,3 @@ def delete_device_created():
         # setup_stuff
         yield
         # teardown_stuff
-

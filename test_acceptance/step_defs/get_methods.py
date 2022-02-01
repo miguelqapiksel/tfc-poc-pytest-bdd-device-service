@@ -1,6 +1,6 @@
 import requests
-from step_defs.env import Inizialization
-from utils.datautils import DataUtils
+from test_acceptance.config.env import Inizialization
+from test_acceptance.utils.datautils import DataUtils
 
 
 class getMethods(object):
