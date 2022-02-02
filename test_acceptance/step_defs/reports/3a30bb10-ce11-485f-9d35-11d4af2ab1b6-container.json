@@ -1,0 +1,1 @@
+{"uuid": "54040c91-38cf-4d69-b066-a954f5d9ff21", "befores": [{"name": "pytestbdd_when_I Send a GET HTTP request to {service:Char} with {request:Char}", "status": "passed", "start": 1643816587068, "stop": 1643816587068}], "start": 1643816587068, "stop": 1643816596453}

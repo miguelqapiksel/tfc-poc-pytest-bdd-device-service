@@ -1,4 +1,5 @@
 import os
+#import allure
 import threading
 from pathlib import Path
 import time
@@ -409,7 +410,8 @@ def pytest_sessionfinish(session, exitstatus):
             json_device = json.loads(device)
             if getMethods.get_device_by_id(service, api_url, headers, json_device["id"]).status_code == 200:
                 deleteMethods.delete_device_by_id(service, api_url, headers, json_device["id"])
-                # deleteMethods.delete_device_by_pattern(service, api_url, headers, Inizialization.data[':pattern'])
+                #deleteMethods.delete_device_by_pattern(service, api_url, headers, Inizialization.data[':pattern'])
+                
 
 
 @pytest.fixture(autouse=True, scope='session')

@@ -1,0 +1,102 @@
+{
+  "uid" : "a37007dc62cc364e",
+  "name" : "test_e2e_creates_a_flow[9aefedf0-2573-11e9-8346-139ab5900c6e-senders]",
+  "fullName" : "test_integration_test_device_create_flow#test_e2e_creates_a_flow",
+  "historyId" : "7d112766e559bb901842fd71c1105821",
+  "time" : {
+    "start" : 1643816586877,
+    "stop" : 1643816596342,
+    "duration" : 9465
+  },
+  "description" : "../features/integration_test_device_create_flow.feature: Integration E2E test for devices that create a flow",
+  "descriptionHtml" : "<p>../features/integration_test_device_create_flow.feature: Integration E2E test for devices that create a flow</p>\n",
+  "status" : "broken",
+  "statusMessage" : "Exception: Last response has no data in it",
+  "statusTrace" : "request = <FixtureRequest for <Function test_e2e_creates_a_flow[9aefedf0-2573-11e9-8346-139ab5900c6e-senders]>>\n_pytest_bdd_example = {'device_type': '9aefedf0-2573-11e9-8346-139ab5900c6e', 'type_flow': 'senders'}\n\n    @pytest.mark.usefixtures(*args)\n    def scenario_wrapper(request, _pytest_bdd_example):\n        scenario = templated_scenario.render(_pytest_bdd_example)\n>       _execute_scenario(feature, scenario, request)\n\n../../enviromentbdd/lib/python3.8/site-packages/pytest_bdd/scenario.py:174: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n../../enviromentbdd/lib/python3.8/site-packages/pytest_bdd/scenario.py:144: in _execute_scenario\n    _execute_step_function(request, scenario, step, step_func)\n../../enviromentbdd/lib/python3.8/site-packages/pytest_bdd/scenario.py:114: in _execute_step_function\n    return_value = step_func(**kwargs)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    @then(parsers.parse('last response should not be empty'))\n    def last_response_check_no_empty():\n        if DataUtils.last_response == []:\n>           raise Exception(\n                'Last response has no data in it ')\nE           Exception: Last response has no data in it\n\nconftest.py:351: Exception",
+  "flaky" : false,
+  "newFailed" : false,
+  "newBroken" : false,
+  "newPassed" : false,
+  "retriesCount" : 0,
+  "retriesStatusChange" : false,
+  "beforeStages" : [ {
+    "name" : "delete_device_created",
+    "time" : {
+      "start" : 1643816586876,
+      "stop" : 1643816586876,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 0,
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "hasContent" : false
+  } ],
+  "testStage" : {
+    "description" : "../features/integration_test_device_create_flow.feature: Integration E2E test for devices that create a flow",
+    "status" : "broken",
+    "statusMessage" : "Exception: Last response has no data in it",
+    "statusTrace" : "request = <FixtureRequest for <Function test_e2e_creates_a_flow[9aefedf0-2573-11e9-8346-139ab5900c6e-senders]>>\n_pytest_bdd_example = {'device_type': '9aefedf0-2573-11e9-8346-139ab5900c6e', 'type_flow': 'senders'}\n\n    @pytest.mark.usefixtures(*args)\n    def scenario_wrapper(request, _pytest_bdd_example):\n        scenario = templated_scenario.render(_pytest_bdd_example)\n>       _execute_scenario(feature, scenario, request)\n\n../../enviromentbdd/lib/python3.8/site-packages/pytest_bdd/scenario.py:174: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n../../enviromentbdd/lib/python3.8/site-packages/pytest_bdd/scenario.py:144: in _execute_scenario\n    _execute_step_function(request, scenario, step, step_func)\n../../enviromentbdd/lib/python3.8/site-packages/pytest_bdd/scenario.py:114: in _execute_step_function\n    return_value = step_func(**kwargs)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    @then(parsers.parse('last response should not be empty'))\n    def last_response_check_no_empty():\n        if DataUtils.last_response == []:\n>           raise Exception(\n                'Last response has no data in it ')\nE           Exception: Last response has no data in it\n\nconftest.py:351: Exception",
+    "steps" : [ ],
+    "attachments" : [ {
+      "uid" : "99d032d288591d3d",
+      "name" : "stdout",
+      "source" : "99d032d288591d3d.txt",
+      "type" : "text/plain",
+      "size" : 7631
+    } ],
+    "parameters" : [ ],
+    "stepsCount" : 0,
+    "attachmentsCount" : 1,
+    "shouldDisplayMessage" : true,
+    "hasContent" : true
+  },
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "tag",
+    "value" : "@pytest.mark.usefixtures"
+  }, {
+    "name" : "suite",
+    "value" : "test_integration_test_device_create_flow"
+  }, {
+    "name" : "host",
+    "value" : "miguel-HP-EliteBook-840-G3"
+  }, {
+    "name" : "thread",
+    "value" : "1663415-MainThread"
+  }, {
+    "name" : "framework",
+    "value" : "pytest"
+  }, {
+    "name" : "language",
+    "value" : "cpython3"
+  }, {
+    "name" : "package",
+    "value" : "test_integration_test_device_create_flow"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ {
+    "name" : "_pytest_bdd_example",
+    "value" : "{'device_type': '9aefedf0-2573-11e9-8346-139ab5900c6e', 'type_flow': 'senders'}"
+  } ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ {
+      "name" : "Test defects",
+      "matchedStatuses" : [ ],
+      "flaky" : false
+    } ],
+    "tags" : [ "@pytest.mark.usefixtures" ]
+  },
+  "source" : "a37007dc62cc364e.json",
+  "parameterValues" : [ "{'device_type': '9aefedf0-2573-11e9-8346-139ab5900c6e', 'type_flow': 'senders'}" ]
+}

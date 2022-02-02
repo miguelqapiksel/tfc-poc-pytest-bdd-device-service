@@ -1,0 +1,22 @@
+{
+  "uid" : "b1a8273437954620fa374b796ffaacdd",
+  "name" : "behaviors",
+  "children" : [ {
+    "name" : "test_e2e_creates_a_flow[9aefedf0-2573-11e9-8346-139ab5900c6e-senders]",
+    "uid" : "a37007dc62cc364e",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "broken",
+    "time" : {
+      "start" : 1643816586877,
+      "stop" : 1643816596342,
+      "duration" : 9465
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "newPassed" : false,
+    "newBroken" : false,
+    "retriesCount" : 0,
+    "retriesStatusChange" : false,
+    "parameters" : [ "{'device_type': '9aefedf0-2573-11e9-8346-139ab5900c6e', 'type_flow': 'senders'}" ]
+  } ]
+}

@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"broken","Wed Feb 02 16:43:06 CET 2022","Wed Feb 02 16:43:16 CET 2022","9465","","test_integration_test_device_create_flow","","","","test_e2e_creates_a_flow[9aefedf0-2573-11e9-8346-139ab5900c6e-senders]","../features/integration_test_device_create_flow.feature: Integration E2E test for devices that create a flow"

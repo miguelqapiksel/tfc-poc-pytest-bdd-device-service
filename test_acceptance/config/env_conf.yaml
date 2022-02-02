@@ -1,4 +1,4 @@
-:basic_url: http://127.0.0.1:8080/v1/api
+:basic_url: http://127.0.0.1:8888/v1/api
 :service: /devices
 :header_x_context: client
 :header_x_production_id_default: 4675d8e0-c0a8-11ea-956b-cfe50a02a49e
