@@ -1,5 +1,7 @@
 .*
 !.gitignore
+
+#ignore pycache subfolders
 __pycache__/
 
 #ignore report files
