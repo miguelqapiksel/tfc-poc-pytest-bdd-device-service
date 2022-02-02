@@ -1,4 +1,6 @@
 .*
-__pycache__/
 !.gitignore
+__pycache__/
+
+#ignore report files
 test_acceptance/reports/
