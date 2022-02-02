@@ -1,3 +1,8 @@
-.idea/
-.pytest_cache
-step_defs/.pytest_cache
+.*
+!.gitignore
+
+#ignore pycache subfolders
+__pycache__/
+
+#ignore report files
+test_acceptance/reports/

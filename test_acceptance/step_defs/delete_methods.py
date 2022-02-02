@@ -1,6 +1,6 @@
 import requests
 import json
-from step_defs.get_methods import getMethods
+from test_acceptance.step_defs.get_methods import getMethods
 
 class deleteMethods(object):
     def delete_device_by_id(service, basicurl, headers, id):

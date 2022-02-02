@@ -1,10 +1,10 @@
 Feature: post_device_service
-
 Background:
 	Given I initialize REST API main params
 
 
 Scenario: post one device in device service
+  Given I run post apocalyptic scenario scenario
   Given I Set POST api endpoint
   When Set request Body from device_template.json using the data:
     | param                  | value                                        |

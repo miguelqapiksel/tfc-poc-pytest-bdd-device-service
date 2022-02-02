@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import pika, sys, os
 import json
-from utils.datautils import DataUtils
+from test_acceptance.utils.datautils import DataUtils
 
 class RabbitMqConsumer():
 
