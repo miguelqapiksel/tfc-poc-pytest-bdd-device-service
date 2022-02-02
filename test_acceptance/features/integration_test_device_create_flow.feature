@@ -5,6 +5,7 @@ Background:
 	Given I initialize REST API main params
 
 #Using deviceType/s which are/is going to trigger a new sendersFlow/receiversFlow
+  @poc
 Scenario Outline: Integration E2E test for devices that create a flow
   Given I Set POST api endpoint
   When Set request Body from device_template.json using the data:

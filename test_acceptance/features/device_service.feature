@@ -3,7 +3,7 @@ Feature: device_service
   Background:
     Given I initialize REST API main params
 
-  @focus
+ # @focus
   Scenario: get all devices
     Given I run get all devices scenario
     Given I Set GET devices api endpoint

@@ -67,9 +67,9 @@ def endpoint_to_post():
     print('url :' + api_endpoints['POST_URL'])
 
 
-# You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
-@when(parsers.parse('Set request Body using the data:\n{table_with_header}'))
-def set_request_body(datatable, table_with_header):
+#You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
+@when(parsers.parse('Set request Body from {file} using the data:\n{table_with_header}'))
+def set_request_body(file,datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     keys = expected_table.get_column(0)
     values = expected_table.get_column(1)
@@ -77,8 +77,8 @@ def set_request_body(datatable, table_with_header):
     value_evaluate = []
     for data in values:
         if DataUtils.is_a_command(data):
-            #   print("the data is")
-            #    print(data)
+        #   print("the data is")
+        #    print(data)
             value_evaluate.append(eval(data))
         else:
             value_evaluate.append(data)
