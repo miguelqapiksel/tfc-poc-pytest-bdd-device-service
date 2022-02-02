@@ -1,3 +1,5 @@
 .idea/
 .pytest_cache
 step_defs/.pytest_cache
+test_acceptance/reports/
+__pycache__/

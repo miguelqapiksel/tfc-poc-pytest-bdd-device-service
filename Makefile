@@ -11,6 +11,6 @@ service-test-happypath:
 
 service-test-focused:
 	make create-report-folder
-	pytest -v ./test_acceptance/step_defs/device_service_happy_path.py -m "focus" --capture=no --cucumberjson="test_acceptance/reports/report.json"
+	pytest -v ./test_acceptance/step_defs/device_service_happy_path.py -m "focus" --capture=no --html=test_acceptance/reports/report.html
 
 #.PHONY: service-test-happypath
