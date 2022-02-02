@@ -1,0 +1,30 @@
+{
+  "uid" : "4b4757e66a1912dae1a509f688f20b0f",
+  "name" : "categories",
+  "children" : [ {
+    "name" : "Test defects",
+    "children" : [ {
+      "name" : "Exception: Last response has no data in it",
+      "children" : [ {
+        "name" : "test_e2e_creates_a_flow[9aefedf0-2573-11e9-8346-139ab5900c6e-senders]",
+        "uid" : "a37007dc62cc364e",
+        "parentUid" : "cdbec49c0566c5f8b605271cfda07c30",
+        "status" : "broken",
+        "time" : {
+          "start" : 1643816586877,
+          "stop" : 1643816596342,
+          "duration" : 9465
+        },
+        "flaky" : false,
+        "newFailed" : false,
+        "newPassed" : false,
+        "newBroken" : false,
+        "retriesCount" : 0,
+        "retriesStatusChange" : false,
+        "parameters" : [ "{'device_type': '9aefedf0-2573-11e9-8346-139ab5900c6e', 'type_flow': 'senders'}" ]
+      } ],
+      "uid" : "cdbec49c0566c5f8b605271cfda07c30"
+    } ],
+    "uid" : "bdbf199525818fae7a8651db9eafe741"
+  } ]
+}

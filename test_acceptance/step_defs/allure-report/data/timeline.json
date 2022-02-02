@@ -1,0 +1,30 @@
+{
+  "uid" : "ab17fc5a4eb3bca4b216b548c7f9fcbc",
+  "name" : "timeline",
+  "children" : [ {
+    "name" : "miguel-HP-EliteBook-840-G3",
+    "children" : [ {
+      "name" : "1663415-MainThread",
+      "children" : [ {
+        "name" : "test_e2e_creates_a_flow[9aefedf0-2573-11e9-8346-139ab5900c6e-senders]",
+        "uid" : "a37007dc62cc364e",
+        "parentUid" : "02afd4530149d5482dd4ba7104b90191",
+        "status" : "broken",
+        "time" : {
+          "start" : 1643816586877,
+          "stop" : 1643816596342,
+          "duration" : 9465
+        },
+        "flaky" : false,
+        "newFailed" : false,
+        "newPassed" : false,
+        "newBroken" : false,
+        "retriesCount" : 0,
+        "retriesStatusChange" : false,
+        "parameters" : [ "{'device_type': '9aefedf0-2573-11e9-8346-139ab5900c6e', 'type_flow': 'senders'}" ]
+      } ],
+      "uid" : "02afd4530149d5482dd4ba7104b90191"
+    } ],
+    "uid" : "b00a2972c0010c5c0e2febd4b0cc2876"
+  } ]
+}

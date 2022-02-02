@@ -1,0 +1,91 @@
+url :http://127.0.0.1:8888/v1/api/devices
+{'name': 'test_device_d0e2e4fc-843e-11ec-b697-bb0903ba729f', 'management_ip': '75.1.182.15', 'tier_number': 1, 'device_type': '9aefedf0-2573-11e9-8346-139ab5900c6e', 'configuration_values': {'config-option-mandatory': 'test 1', 'config-option-not-mandatory': 'test 1', 'config-option-secret': 'test 1', 'config-option-integer': 42, 'config-option-boolean': False, 'config-option-no-regex': 'test 1', 'configuration_template': 'FWC_UDX', 'first_audio_mc_primary': '229.208.0.0', 'first_meta_mc_primary': '225.0.0.0', 'first_video_mc_primary': '229.0.255.128', 'io_module_in': '12', 'io_module_out': '20'}, 'custom_metadata': {'name_of_custom_metadata': 'value of custom metadata', 'old_id': 'e1bbfed5-8698-4116-b761-b2f3e298dd56', 'location': 'roof'}}
+post response :{
+    "id": "796a9e37-5602-429c-8145-d6e68e2032ca",
+    "name": "test_device_d0e2e4fc-843e-11ec-b697-bb0903ba729f",
+    "management_ip": "75.1.182.15",
+    "tier_number": 1,
+    "configuration_values": {
+        "configuration_template": "FWC_UDX",
+        "first_audio_mc_primary": "229.208.0.0",
+        "first_meta_mc_primary": "225.0.0.0",
+        "first_video_mc_primary": "229.0.255.128",
+        "io_module_in": 12,
+        "io_module_out": 20
+    },
+    "custom_metadata": {
+        "name_of_custom_metadata": "value of custom metadata",
+        "old_id": "e1bbfed5-8698-4116-b761-b2f3e298dd56",
+        "location": "roof"
+    },
+    "device_monitoring": {
+        "device_status": null,
+        "updated_at": "2022-02-02T16:43:07+01:00"
+    },
+    "delete_origin": null,
+    "assigned_to": [],
+    "production_id": "4675d8e0-c0a8-11ea-956b-cfe50a02a49e",
+    "created_at": "2022-02-02T16:43:07+01:00",
+    "updated_at": "2022-02-02T16:43:07+01:00",
+    "deleted_at": null,
+    "_links": {
+        "self": {
+            "href": "/v1/api/devices/796a9e37-5602-429c-8145-d6e68e2032ca"
+        },
+        "device_type": {
+            "href": "/v1/api/devicetypes/9aefedf0-2573-11e9-8346-139ab5900c6e",
+            "id": "9aefedf0-2573-11e9-8346-139ab5900c6e"
+        },
+        "created_by": {
+            "href": null
+        },
+        "updated_by": {
+            "href": null
+        }
+    },
+    "_embedded": {
+        "device_type": {
+            "id": "9aefedf0-2573-11e9-8346-139ab5900c6e",
+            "name": "LAWO C100",
+            "description": "V__Matrix C100 blade",
+            "configuration_options": {},
+            "created_at": "2022-02-02T11:07:35+01:00",
+            "updated_at": "2022-02-02T11:07:35+01:00",
+            "_links": {
+                "self": {
+                    "href": "/v1/api/devicetypes/9aefedf0-2573-11e9-8346-139ab5900c6e"
+                },
+                "vendor": {
+                    "href": "/v1/api/vendors/fc588210-2572-11e9-a336-79dc1e89a7fa"
+                }
+            },
+            "_embedded": {
+                "vendor": {
+                    "id": "fc588210-2572-11e9-a336-79dc1e89a7fa",
+                    "name": "LAWO",
+                    "created_at": "2022-02-02T11:07:35+01:00",
+                    "updated_at": "2022-02-02T11:07:35+01:00",
+                    "_links": {
+                        "self": {
+                            "href": "/v1/api/vendors/fc588210-2572-11e9-a336-79dc1e89a7fa"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+Post rep code ;201
+MQ-MESSAGE:---->[{'queue': 'device.create', 'message': {'data': 'ewogICAgImlkIjogIjc5NmE5ZTM3LTU2MDItNDI5Yy04MTQ1LWQ2ZTY4ZTIwMzJjYSIsCiAgICAibmFtZSI6ICJ0ZXN0X2RldmljZV9kMGUyZTRmYy04NDNlLTExZWMtYjY5Ny1iYjA5MDNiYTcyOWYiLAogICAgIm1hbmFnZW1lbnRfaXAiOiAiNzUuMS4xODIuMTUiLAogICAgInRpZXJfbnVtYmVyIjogMSwKICAgICJjb25maWd1cmF0aW9uX3ZhbHVlcyI6IHsKICAgICAgICAiY29uZmlndXJhdGlvbl90ZW1wbGF0ZSI6ICJGV0NfVURYIiwKICAgICAgICAiZmlyc3RfYXVkaW9fbWNfcHJpbWFyeSI6ICIyMjkuMjA4LjAuMCIsCiAgICAgICAgImZpcnN0X21ldGFfbWNfcHJpbWFyeSI6ICIyMjUuMC4wLjAiLAogICAgICAgICJmaXJzdF92aWRlb19tY19wcmltYXJ5IjogIjIyOS4wLjI1NS4xMjgiLAogICAgICAgICJpb19tb2R1bGVfaW4iOiAxMiwKICAgICAgICAiaW9fbW9kdWxlX291dCI6IDIwCiAgICB9LAogICAgImN1c3RvbV9tZXRhZGF0YSI6IHsKICAgICAgICAibmFtZV9vZl9jdXN0b21fbWV0YWRhdGEiOiAidmFsdWUgb2YgY3VzdG9tIG1ldGFkYXRhIiwKICAgICAgICAib2xkX2lkIjogImUxYmJmZWQ1LTg2OTgtNDExNi1iNzYxLWIyZjNlMjk4ZGQ1NiIsCiAgICAgICAgImxvY2F0aW9uIjogInJvb2YiCiAgICB9LAogICAgImRldmljZV9tb25pdG9yaW5nIjogewogICAgICAgICJkZXZpY2Vfc3RhdHVzIjogbnVsbCwKICAgICAgICAidXBkYXRlZF9hdCI6ICIyMDIyLTAyLTAyVDE2OjQzOjA3KzAxOjAwIgogICAgfSwKICAgICJkZWxldGVfb3JpZ2luIjogbnVsbCwKICAgICJhc3NpZ25lZF90byI6IFtdLAogICAgInByb2R1Y3Rpb25faWQiOiAiNDY3NWQ4ZTAtYzBhOC0xMWVhLTk1NmItY2ZlNTBhMDJhNDllIiwKICAgICJjcmVhdGVkX2F0IjogIjIwMjItMDItMDJUMTY6NDM6MDcrMDE6MDAiLAogICAgInVwZGF0ZWRfYXQiOiAiMjAyMi0wMi0wMlQxNjo0MzowNyswMTowMCIsCiAgICAiZGVsZXRlZF9hdCI6IG51bGwsCiAgICAiX2xpbmtzIjogewogICAgICAgICJzZWxmIjogewogICAgICAgICAgICAiaHJlZiI6ICIvdjEvYXBpL2RldmljZXMvNzk2YTllMzctNTYwMi00MjljLTgxNDUtZDZlNjhlMjAzMmNhIgogICAgICAgIH0sCiAgICAgICAgImRldmljZV90eXBlIjogewogICAgICAgICAgICAiaHJlZiI6ICIvdjEvYXBpL2RldmljZXR5cGVzLzlhZWZlZGYwLTI1NzMtMTFlOS04MzQ2LTEzOWFiNTkwMGM2ZSIsCiAgICAgICAgICAgICJpZCI6ICI5YWVmZWRmMC0yNTczLTExZTktODM0Ni0xMzlhYjU5MDBjNmUiCiAgICAgICAgfSwKICAgICAgICAiY3JlYXRlZF9ieSI6IHsKICAgICAgICAgICAgImhyZWYiOiBudWxsCiAgICAgICAgfSwKICAgICAgICAidXBkYXRlZF9ieSI6IHsKICAgICAgICAgICAgImhyZWYiOiBudWxsCiAgICAgICAgfQogICAgfSwKICAgICJfZW1iZWRkZWQiOiB7CiAgICAgICAgImRldmljZV90eXBlIjogewogICAgICAgICAgICAiaWQiOiAiOWFlZmVkZjAtMjU3My0xMWU5LTgzNDYtMTM5YWI1OTAwYzZlIiwKICAgICAgICAgICAgIm5hbWUiOiAiTEFXTyBDMTAwIiwKICAgICAgICAgICAgImRlc2NyaXB0aW9uIjogIlZfX01hdHJpeCBDMTAwIGJsYWRlIiwKICAgICAgICAgICAgImNvbmZpZ3VyYXRpb25fb3B0aW9ucyI6IHt9LAogICAgICAgICAgICAiY3JlYXRlZF9hdCI6ICIyMDIyLTAyLTAyVDExOjA3OjM1KzAxOjAwIiwKICAgICAgICAgICAgInVwZGF0ZWRfYXQiOiAiMjAyMi0wMi0wMlQxMTowNzozNSswMTowMCIsCiAgICAgICAgICAgICJfbGlua3MiOiB7CiAgICAgICAgICAgICAgICAic2VsZiI6IHsKICAgICAgICAgICAgICAgICAgICAiaHJlZiI6ICIvdjEvYXBpL2RldmljZXR5cGVzLzlhZWZlZGYwLTI1NzMtMTFlOS04MzQ2LTEzOWFiNTkwMGM2ZSIKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAidmVuZG9yIjogewogICAgICAgICAgICAgICAgICAgICJocmVmIjogIi92MS9hcGkvdmVuZG9ycy9mYzU4ODIxMC0yNTcyLTExZTktYTMzNi03OWRjMWU4OWE3ZmEiCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJfZW1iZWRkZWQiOiB7CiAgICAgICAgICAgICAgICAidmVuZG9yIjogewogICAgICAgICAgICAgICAgICAgICJpZCI6ICJmYzU4ODIxMC0yNTcyLTExZTktYTMzNi03OWRjMWU4OWE3ZmEiLAogICAgICAgICAgICAgICAgICAgICJuYW1lIjogIkxBV08iLAogICAgICAgICAgICAgICAgICAgICJjcmVhdGVkX2F0IjogIjIwMjItMDItMDJUMTE6MDc6MzUrMDE6MDAiLAogICAgICAgICAgICAgICAgICAgICJ1cGRhdGVkX2F0IjogIjIwMjItMDItMDJUMTE6MDc6MzUrMDE6MDAiLAogICAgICAgICAgICAgICAgICAgICJfbGlua3MiOiB7CiAgICAgICAgICAgICAgICAgICAgICAgICJzZWxmIjogewogICAgICAgICAgICAgICAgICAgICAgICAgICAgImhyZWYiOiAiL3YxL2FwaS92ZW5kb3JzL2ZjNTg4MjEwLTI1NzItMTFlOS1hMzM2LTc5ZGMxZTg5YTdmYSIKICAgICAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQogICAgICAgIH0KICAgIH0KfQ==', 'attributes': {'contentType': 'application/json', 'event': 'device.create', 'entity': 'device', 'action': 'create', 'routingKey': 'device.create', 'objectId': '796a9e37-5602-429c-8145-d6e68e2032ca', 'username': None}, 'messageId': '8f081a1f-3f17-4689-b632-5e86806d09ea', 'publishTime': '2022-02-02T15:43:07.048567Z'}}]
+--------------------------
+http://127.0.0.1:8080/v1/api
+{'X-Context': 'client', 'X-Production_Id': '4675d8e0-c0a8-11ea-956b-cfe50a02a49e'}
+Get from --> http://127.0.0.1:8080/v1/api/devices/796a9e37-5602-429c-8145-d6e68e2032ca/flows/senders?limit=1
+-------------------------------
+Request attempt 1
+Request attempt 2
+Request attempt 3
+Response from GET ---> : {
+    "results": [],
+    "total_results": 0
+}

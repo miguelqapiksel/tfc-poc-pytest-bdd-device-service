@@ -1,0 +1,26 @@
+{
+  "uid" : "83edc06c07f9ae9e47eb6dd1b683e4e2",
+  "name" : "packages",
+  "children" : [ {
+    "name" : "test_integration_test_device_create_flow",
+    "children" : [ {
+      "name" : "test_e2e_creates_a_flow[9aefedf0-2573-11e9-8346-139ab5900c6e-senders]",
+      "uid" : "a37007dc62cc364e",
+      "parentUid" : "29fc02015eb382d5368302c8f3c45396",
+      "status" : "broken",
+      "time" : {
+        "start" : 1643816586877,
+        "stop" : 1643816596342,
+        "duration" : 9465
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "newPassed" : false,
+      "newBroken" : false,
+      "retriesCount" : 0,
+      "retriesStatusChange" : false,
+      "parameters" : [ "{'device_type': '9aefedf0-2573-11e9-8346-139ab5900c6e', 'type_flow': 'senders'}" ]
+    } ],
+    "uid" : "29fc02015eb382d5368302c8f3c45396"
+  } ]
+}

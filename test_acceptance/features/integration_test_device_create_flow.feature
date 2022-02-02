@@ -38,9 +38,8 @@ Scenario Outline: Integration E2E test for devices that create a flow
   Then last response should not be empty
   Then last response should contain:
     | value         | expect                                                      |
-    | device_id     | DataUtils.get_field_from_last_response('device_id')                    |
+    | device_id     | DataUtils.get_field_from_last_response('device_id')         |
     | production_id | getMethods.get_conf_value('header_x_production_id_default') |
-
   Examples:
 
     #|C100 DMV node|EB22|EB23|Embrionix emFusion|LAWO C100|MuoN|PAM-IP#
@@ -49,7 +48,7 @@ Scenario Outline: Integration E2E test for devices that create a flow
     | 88ea9140-6ff4-11e9-99c8-cbb88253d865 | receivers         |
     | 1e9107fc-b894-43cc-b763-d8addaec6df2 | receivers         |
     | e72fa4c0-388d-11e9-a127-ed0c556c028f | receivers         |
-    | 9aefedf0-2573-11e9-8346-139ab5900c6e | senders         |
+     | 9aefedf0-2573-11e9-8346-139ab5900c6e | senders           |
     | c7e227a8-6322-4967-a02a-e95fce6b3c69 | receivers         |
     | 64d7b682-7366-44ea-9257-293e7fbe2c2e | receivers         |
 

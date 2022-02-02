@@ -1,0 +1,11 @@
+[ {
+  "uid" : "a37007dc62cc364e",
+  "name" : "test_e2e_creates_a_flow[9aefedf0-2573-11e9-8346-139ab5900c6e-senders]",
+  "time" : {
+    "start" : 1643816586877,
+    "stop" : 1643816596342,
+    "duration" : 9465
+  },
+  "status" : "broken",
+  "severity" : "normal"
+} ]

@@ -1,0 +1,22 @@
+{
+  "7d112766e559bb901842fd71c1105821" : {
+    "statistic" : {
+      "failed" : 0,
+      "broken" : 1,
+      "skipped" : 0,
+      "passed" : 0,
+      "unknown" : 0,
+      "total" : 1
+    },
+    "items" : [ {
+      "uid" : "a37007dc62cc364e",
+      "status" : "broken",
+      "statusDetails" : "Exception: Last response has no data in it",
+      "time" : {
+        "start" : 1643816586877,
+        "stop" : 1643816596342,
+        "duration" : 9465
+      }
+    } ]
+  }
+}

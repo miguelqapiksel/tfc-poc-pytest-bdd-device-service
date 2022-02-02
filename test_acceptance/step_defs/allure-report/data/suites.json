@@ -1,0 +1,26 @@
+{
+  "uid" : "98d3104e051c652961429bf95fa0b5d6",
+  "name" : "suites",
+  "children" : [ {
+    "name" : "test_integration_test_device_create_flow",
+    "children" : [ {
+      "name" : "test_e2e_creates_a_flow[9aefedf0-2573-11e9-8346-139ab5900c6e-senders]",
+      "uid" : "a37007dc62cc364e",
+      "parentUid" : "253f4d41e1d4ce4050b365b85aafe2c1",
+      "status" : "broken",
+      "time" : {
+        "start" : 1643816586877,
+        "stop" : 1643816596342,
+        "duration" : 9465
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "newPassed" : false,
+      "newBroken" : false,
+      "retriesCount" : 0,
+      "retriesStatusChange" : false,
+      "parameters" : [ "{'device_type': '9aefedf0-2573-11e9-8346-139ab5900c6e', 'type_flow': 'senders'}" ]
+    } ],
+    "uid" : "253f4d41e1d4ce4050b365b85aafe2c1"
+  } ]
+}

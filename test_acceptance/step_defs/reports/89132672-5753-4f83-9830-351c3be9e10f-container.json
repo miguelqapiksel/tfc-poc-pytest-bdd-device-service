@@ -1,0 +1,1 @@
+{"uuid": "1980708c-0170-4abb-8ee2-7d59e6db9644", "befores": [{"name": "pytestbdd_then_I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}", "status": "passed", "start": 1643816587067, "stop": 1643816587067}], "start": 1643816587067, "stop": 1643816596454}
