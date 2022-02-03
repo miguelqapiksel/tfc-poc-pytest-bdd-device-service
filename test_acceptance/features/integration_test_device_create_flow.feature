@@ -1,3 +1,4 @@
+@poc
 #TFC-4104 - https://nepgroup.atlassian.net/browse/TFC-4104
 Feature: integration_test_device_create_flow
 
@@ -5,7 +6,7 @@ Background:
 	Given I initialize REST API main params
 
 #Using deviceType/s which are/is going to trigger a new sendersFlow/receiversFlow
-  @poc
+
 Scenario Outline: Integration E2E test for devices that create a flow
   Given I Set POST api endpoint
   When Set request Body from device_template.json using the data:

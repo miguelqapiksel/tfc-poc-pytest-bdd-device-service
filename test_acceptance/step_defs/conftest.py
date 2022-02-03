@@ -1,5 +1,5 @@
 import os
-#import allure
+import allure
 import threading
 from pathlib import Path
 import time
@@ -39,8 +39,8 @@ request_bodies = {}
 api_url = None
 threads = []
 
-
 @given('I initialize REST API main params')
+@allure.step
 def api_initialization():
     global api_url
     global service
@@ -62,6 +62,7 @@ def api_initialization():
 
 # START POST Scenario
 @given('I Set POST api endpoint')
+@allure.step
 def endpoint_to_post():
     api_endpoints['POST_URL'] = api_url + service
     print('url :' + api_endpoints['POST_URL'])
@@ -69,6 +70,7 @@ def endpoint_to_post():
 
 #You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when(parsers.parse('Set request Body from {file} using the data:\n{table_with_header}'))
+@allure.step
 def set_request_body(file,datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     keys = expected_table.get_column(0)
@@ -93,6 +95,7 @@ def set_request_body(file,datatable, table_with_header):
 
 # You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when('Send POST HTTP request')
+@allure.step
 def send_post():
     try:
         response = requests.post(url=api_endpoints['POST_URL'], json=request_bodies['POST'], headers=headers,
@@ -110,6 +113,7 @@ def send_post():
 
 
 @then('I receive valid HTTP response code 201')
+@allure.step
 def receive_valid_http_response():
     print('Post rep code ;' + str(response_codes['POST']))
     assert response_codes['POST'] is 201
@@ -119,12 +123,14 @@ def receive_valid_http_response():
 
 # START GET Scenario
 @given(parsers.cfparse('I Set GET posts api endpoint {id:Char}', extra_types=dict(Char=str)))
+@allure.step
 def set_get_api_endpoint(id):
     api_endpoints['GET_URL'] = api_url + '/posts/' + id
     print('url :' + api_endpoints['GET_URL'])
 
 
 @given('I Set GET devices api endpoint')
+@allure.step
 def set_get_api_endpoint():
     api_endpoints['GET_URL'] = api_url + service
     print('url :' + api_endpoints['GET_URL'])
@@ -132,6 +138,7 @@ def set_get_api_endpoint():
 
 # You may also include "And" or "But" as a step - these are renamed by behave to take the name of their preceding step, so:
 @when(parsers.cfparse('Send GET HTTP request to {service_name:Char} service', extra_types=dict(Char=str)))
+@allure.step
 def send_get_http_request(service_name):
     # sending get request and saving response as response object
     # print("--------------------------")
@@ -151,6 +158,7 @@ def send_get_http_request(service_name):
 
 
 @when('I send a GET HTTP request by id to the device service')
+@allure.step
 def send_get_http_request_by_id():
     json_device = json.loads(response_texts['POST'])
     response = getMethods.get_device_by_id(service, api_url, headers, json_device["id"])
@@ -159,12 +167,14 @@ def send_get_http_request_by_id():
 
 
 @then(parsers.cfparse('I receive valid HTTP response code 200 for {request_name:Char}', extra_types=dict(Char=str)))
+@allure.step
 def receive_valid_http_response_code_200(request_name):
     print('Get rep code for ' + request_name + ':' + str(response_codes[request_name]))
     assert response_codes[request_name] is 200
 
 
 @then(parsers.parse('verify response attributes:\n{one_col_table_w_header}'))
+@allure.step
 def verify_response_attribute_values_one_column(datatable, one_col_table_w_header):
     expected_table = parse_str_table(one_col_table_w_header)
     jsonResponse = json.loads(response_texts['GET'])
@@ -193,6 +203,7 @@ def verify_response_attribute_values_one_column(datatable, one_col_table_w_heade
 
 @given(parsers.cfparse('I send a mock message with {mock_message:Char} in RabbitMQ to routing key {routing_key:Char}',
                        extra_types=dict(Char=str)))
+@allure.step
 def send_message_to_rabbitmq(mock_message, routing_key):
     rabbit_mq_handler = RabbitMockSender(Inizialization.data[':mq_adress'], routing_key,
                                          mock_message)
@@ -204,6 +215,7 @@ def send_message_to_rabbitmq(mock_message, routing_key):
 @given(parsers.cfparse(
     'I send a mock message from json file {json_file_path} in RabbitMQ to routing key {routing_key:Char}',
     extra_types=dict(Char=str)))
+@allure.step
 def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
     with open(json_file_path, 'r') as j:
         json_file_content = j.read()
@@ -217,6 +229,7 @@ def send_message_to_rabbitmq_from_json_file(json_file_path, routing_key):
 
 @then(parsers.cfparse('I check message {message:Char} exists in RabbitMQ for routing key {routing_key:Char}',
                       extra_types=dict(Char=str)))
+@allure.step
 def send_message_to_rabbitmq(message, routing_key):
     start_time = time.time()
     seconds = int(Inizialization.data[':pool_messages_minutes_timeout']) * 60
@@ -242,6 +255,7 @@ def send_message_to_rabbitmq(message, routing_key):
 
 @then(parsers.parse(
     'I check message sent to RabbitMQ for routing key {routing_key} should contain:\n{table_with_header}'))
+@allure.step
 def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
     start_time = time.time()
@@ -288,6 +302,7 @@ def verify_message_rabbit_mq_values_several_columns(routing_key, datatable, tabl
 
 
 @when(parsers.cfparse('I Send a GET HTTP request to {service:Char} with {request:Char}', extra_types=dict(Char=str)))
+@allure.step
 def send_get_http_request(service, request):
     # sending get request and saving response as response object
     print("--------------------------")
@@ -323,6 +338,7 @@ def send_get_http_request(service, request):
 
 
 @then(parsers.parse('last response should contain:\n{table_with_header}'))
+@allure.step
 def last_response_check(datatable, table_with_header):
     expected_table = parse_str_table(table_with_header)
 
@@ -355,6 +371,7 @@ def last_response_check(datatable, table_with_header):
 
 
 @then(parsers.parse('last response should be empty'))
+@allure.step
 def last_response_check_empty():
     if not DataUtils.last_response == []:
         raise Exception(
@@ -362,6 +379,7 @@ def last_response_check_empty():
 
 
 @then(parsers.parse('last response should not be empty'))
+@allure.step
 def last_response_check_no_empty():
     if DataUtils.last_response == []:
         raise Exception(
@@ -381,6 +399,7 @@ def pytest_sessionstart():
 
 # ---------------------------------------------------Data Base ---------------------------------------------------------#
 @when('I check that the new device created is stored in database')
+@allure.step
 def check_device_id_in_database():
     json_device = json.loads(response_texts['POST'])
     id = json_device['id']
@@ -401,7 +420,6 @@ def i_run_scenario(scr):
 # ---------------------------------------------------------------------------------------------------------------------#
 # -----------------------------------------------Tear Down-------------------------------------------------------------#
 # ---------------------------------------------------------------------------------------------------------------------#
-
 def pytest_sessionfinish(session, exitstatus):
     print("\n-----------Deleting devices created-------------------")
     print(type(DataUtils.resources))
