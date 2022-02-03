@@ -3,6 +3,7 @@
 
 #ignore pycache subfolders
 __pycache__/
-
 #ignore report files
+
 test_acceptance/reports/
+test_acceptance/allure_reports/
